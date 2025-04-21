@@ -2,6 +2,7 @@ package org.tutorial.springemailtutorial.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -38,10 +39,22 @@ public class AuthenticationController {
         logger.info("Attempting login for user: {}", loginUserDto.getEmail());
         try {
             User authenticatedUser = authenticationService.authenticate(loginUserDto);
-            logger.info("Authentication successful for user: {}", authenticatedUser.getEmail());
+
             String jwtToken = jwtService.generateToken(authenticatedUser);
             model.addAttribute("token", jwtToken);
             return "redirect:/dashboard";
+
+        } catch (DisabledException e) {
+            logger.warn("User {} is not verified. Triggering re-verification.", loginUserDto.getEmail());
+            try {
+                authenticationService.resendVerificationCode(loginUserDto.getEmail());
+                model.addAttribute("message", "Verification code re-sent to your email.");
+            } catch (Exception ex) {
+                logger.error("Failed to resend verification code: {}", ex.getMessage());
+                model.addAttribute("error", "Failed to resend verification code. Please try again.");
+            }
+            return "redirect:/auth/verify-email?email=" + loginUserDto.getEmail();
+
         } catch (Exception e) {
             logger.error("Authentication failed for user: {} - Error: {}", loginUserDto.getEmail(), e.getMessage());
             model.addAttribute("error", "Invalid credentials");
