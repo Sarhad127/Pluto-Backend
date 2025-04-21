@@ -24,4 +24,9 @@ public class VerifyUserDto {
     public void setVerificationCode(String verificationCode) {
         this.verificationCode = verificationCode;
     }
+
+    public VerifyUserDto(String email, String verificationCode) {
+        this.email = email;
+        this.verificationCode = verificationCode;
+    }
 }

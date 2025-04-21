@@ -35,4 +35,13 @@ public class RegisterUserDto {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public RegisterUserDto(String username, String password, String email) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+    }
+
+    public RegisterUserDto() {
+    }
 }
