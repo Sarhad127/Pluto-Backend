@@ -15,21 +15,28 @@ import java.util.List;
 @Table(name = "users")
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class User implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     @Column(unique = true, nullable = false)
     private String username;
+
     @Column(unique = true, nullable = false)
     private String email;
+
     @Column(nullable = false)
     private String password;
 
     @Column(name = "verification_code")
     private String verificationCode;
+
     @Column(name = "verification_expiration")
     private LocalDateTime verificationCodeExpiresAt;
+
     private boolean enabled;
 
     public User(String username, String email, String password) {
@@ -38,15 +45,11 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    public User() {
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
     }
 
-    //TODO: add proper boolean checks
     @Override
     public boolean isAccountNonExpired() {
         return true;
@@ -67,55 +70,4 @@ public class User implements UserDetails {
         return enabled;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public LocalDateTime getVerificationCodeExpiresAt() {
-        return verificationCodeExpiresAt;
-    }
-
-    public void setVerificationCodeExpiresAt(LocalDateTime verificationCodeExpiresAt) {
-        this.verificationCodeExpiresAt = verificationCodeExpiresAt;
-    }
-
-    public String getVerificationCode() {
-        return verificationCode;
-    }
-
-    public void setVerificationCode(String verificationCode) {
-        this.verificationCode = verificationCode;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
 }

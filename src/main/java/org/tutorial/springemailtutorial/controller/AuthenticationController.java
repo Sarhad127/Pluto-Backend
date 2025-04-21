@@ -1,5 +1,6 @@
 package org.tutorial.springemailtutorial.controller;
 
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.DisabledException;
@@ -15,17 +16,13 @@ import org.tutorial.springemailtutorial.service.JwtService;
 
 @Controller
 @RequestMapping("/auth")
+@AllArgsConstructor
 public class AuthenticationController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
     private final JwtService jwtService;
     private final AuthenticationService authenticationService;
-
-    public AuthenticationController(JwtService jwtService, AuthenticationService authenticationService) {
-        this.jwtService = jwtService;
-        this.authenticationService = authenticationService;
-    }
 
     @GetMapping("/login")
     public String loginPage(Model model) {

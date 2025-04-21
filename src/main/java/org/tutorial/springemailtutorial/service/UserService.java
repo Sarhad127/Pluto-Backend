@@ -1,5 +1,6 @@
 package org.tutorial.springemailtutorial.service;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.tutorial.springemailtutorial.model.User;
 import org.tutorial.springemailtutorial.repository.UserRepository;
@@ -8,11 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class UserService {
+
     private final UserRepository userRepository;
-    public UserService(UserRepository userRepository, EmailService emailService) {
-        this.userRepository = userRepository;
-    }
 
     public List<User> allUsers() {
         List<User> users = new ArrayList<>();

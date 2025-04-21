@@ -1,16 +1,13 @@
 package org.tutorial.springemailtutorial.responses;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
+@AllArgsConstructor
 public class LoginResponse {
+
     private String token;
     private long expiresIn;
 
-    public LoginResponse(String token, long expiresIn) {
-        this.token = token;
-        this.expiresIn = expiresIn;
-    }
 }

@@ -1,5 +1,6 @@
 package org.tutorial.springemailtutorial.controller;
 
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -13,12 +14,10 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/users")
+@AllArgsConstructor
 public class UserController {
 
     private final UserService userService;
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @GetMapping("/me")
     public String authenticatedUser(Model model) {
