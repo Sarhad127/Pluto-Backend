@@ -1,6 +1,6 @@
 package org.tutorial.springemailtutorial.controller;
 
-import lombok.AllArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;

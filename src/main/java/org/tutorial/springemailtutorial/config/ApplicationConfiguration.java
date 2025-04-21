@@ -1,5 +1,6 @@
 package org.tutorial.springemailtutorial.config;
 
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,12 +13,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.tutorial.springemailtutorial.repository.UserRepository;
 
 @Configuration
+@AllArgsConstructor
 public class ApplicationConfiguration {
 
     private final UserRepository userRepository;
-    public ApplicationConfiguration(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Bean
     UserDetailsService userDetailsService() {

@@ -1,6 +1,6 @@
 package org.tutorial.springemailtutorial.service;
 
-import lombok.AllArgsConstructor;
+import lombok.*;
 import org.springframework.stereotype.Service;
 import org.tutorial.springemailtutorial.model.User;
 import org.tutorial.springemailtutorial.repository.UserRepository;
