@@ -37,6 +37,8 @@ public class User implements UserDetails {
 
     private boolean enabled;
 
+    private String provider;
+
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;

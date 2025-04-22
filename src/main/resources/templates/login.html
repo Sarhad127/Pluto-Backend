@@ -37,18 +37,29 @@
             display: block;
             box-sizing: border-box;
         }
-        button {
+        button, .oauth-btn {
             width: 100%;
             padding: 12px;
-            background-color: #4CAF50;
-            color: white;
             border: none;
             border-radius: 5px;
             font-weight: bold;
             cursor: pointer;
+            margin-top: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
         }
         button:hover {
             background-color: #43a047;
+        }
+        .oauth-btn.google {
+            background-color: #db4437;
+            color: white;
+        }
+        .oauth-btn.github {
+            background-color: #333;
+            color: white;
         }
         .link {
             margin-top: 15px;
@@ -57,6 +68,9 @@
         .link a {
             color: #4CAF50;
             text-decoration: none;
+        }
+        .oauth-container {
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -72,6 +86,12 @@
         </label>
         <button type="submit">Login</button>
     </form>
+
+    <div class="oauth-container">
+        <a class="oauth-btn google" href="/oauth2/authorization/google">Login with Google</a>
+        <a class="oauth-btn github" href="/oauth2/authorization/github">Login with GitHub</a>
+    </div>
+
     <div class="link">
         <span>Don't have an account? <a th:href="@{/auth/signup}">Register</a></span>
     </div>
