@@ -40,7 +40,9 @@ public class AuthenticationController {
             logger.warn("User {} is not verified. Triggering re-verification.", loginUserDto.getEmail());
             try {
                 authenticationService.resendVerificationCode(loginUserDto.getEmail());
-                return ResponseEntity.status(400).body("Verification code re-sent to your email.");
+                return ResponseEntity.status(400).body(
+                        Collections.singletonMap("error", "UNVERIFIED_USER")
+                );
             } catch (Exception ex) {
                 logger.error("Failed to resend verification code: {}", ex.getMessage());
                 return ResponseEntity.status(500).body("Failed to resend verification code. Please try again.");
