@@ -1,12 +1,13 @@
 package org.tutorial.springemailtutorial.service;
 
-
 import jakarta.mail.MessagingException;
+import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.tutorial.springemailtutorial.customExceptions.DuplicateUserException;
 import org.tutorial.springemailtutorial.dto.LoginUserDto;
 import org.tutorial.springemailtutorial.dto.RegisterUserDto;
 import org.tutorial.springemailtutorial.dto.VerifyUserDto;
@@ -18,31 +19,28 @@ import java.util.Optional;
 import java.util.Random;
 
 @Service
+@AllArgsConstructor
 public class AuthenticationService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
 
-    public AuthenticationService(
-            UserRepository userRepository,
-            AuthenticationManager authenticationManager,
-            PasswordEncoder passwordEncoder,
-            EmailService emailService
-    ) {
-        this.authenticationManager = authenticationManager;
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.emailService = emailService;
-    }
+    public void signup(RegisterUserDto input) {
+        if (userRepository.existsByEmail(input.getEmail())) {
+            throw new DuplicateUserException("Email is already taken.");
+        }
 
-    public User signup(RegisterUserDto input) {
+        if (userRepository.existsByUsername(input.getUsername())) {
+            throw new DuplicateUserException("Username is already taken.");
+        }
         User user = new User(input.getUsername(), input.getEmail(), passwordEncoder.encode(input.getPassword()));
         user.setVerificationCode(generateVerificationCode());
         user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
         user.setEnabled(false);
         sendVerificationEmail(user);
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 
     public User authenticate(LoginUserDto input) {
@@ -131,6 +129,7 @@ public class AuthenticationService {
             e.printStackTrace();
         }
     }
+
     private String generateVerificationCode() {
         Random random = new Random();
         int code = random.nextInt(900000) + 100000;
