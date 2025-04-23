@@ -22,9 +22,9 @@ public class OAuth2Service {
 
     private static final Logger logger = LoggerFactory.getLogger(OAuth2Service.class);
 
-    public void registerOrUpdateOAuth2User(OAuth2User oAuth2User, String provider) {
+    public String registerOrUpdateOAuth2User(OAuth2User oAuth2User, String provider) {
         Map<String, Object> attributes = oAuth2User.getAttributes();
-        logger.info("{} OAuth2 Attributes: {}", provider, attributes); // Detailed logging
+        logger.info("{} OAuth2 Attributes: {}", provider, attributes);
 
         try {
             String username = extractUsername(attributes, provider);
@@ -47,8 +47,10 @@ public class OAuth2Service {
             user.setEmail(email);
             user.setProvider(provider);
 
-            User savedUser = userRepository.save(user);
-            logger.info("Successfully saved {} user: {}", provider, savedUser);
+            userRepository.save(user);
+            logger.info("Successfully saved {} user: {}", provider, user);
+
+            return email;
         } catch (Exception e) {
             logger.error("Error processing {} OAuth user: {}", provider, e.getMessage());
             throw e;
@@ -59,13 +61,13 @@ public class OAuth2Service {
         return switch (provider.toLowerCase()) {
             case "github" -> (String) attributes.get("login");
             case "google" -> {
-                // Handle Google's name structure
+
                 String name = (String) attributes.get("name");
                 if (name == null) {
-                    name = (String) attributes.get("given_name") + " " +
-                            (String) attributes.get("family_name");
+                    name = attributes.get("given_name") + " " +
+                            attributes.get("family_name");
                 }
-                yield name != null ? name : ((String) attributes.get("email")).split("@")[0];
+                yield name;
             }
             default -> (String) attributes.getOrDefault("name",
                     attributes.getOrDefault("login", "unknown"));
@@ -73,7 +75,6 @@ public class OAuth2Service {
     }
 
     private String extractEmail(Map<String, Object> attributes, String provider, String username) {
-        // Google should have email directly in attributes
         String email = (String) attributes.get("email");
 
         if (email == null && "github".equalsIgnoreCase(provider)) {

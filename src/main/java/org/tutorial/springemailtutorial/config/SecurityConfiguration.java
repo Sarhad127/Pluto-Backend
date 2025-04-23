@@ -10,6 +10,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.tutorial.springemailtutorial.service.JwtService;
 import org.tutorial.springemailtutorial.service.OAuth2Service;
 
 import java.util.List;
@@ -33,6 +36,8 @@ public class SecurityConfiguration {
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final OAuth2Service oAuth2Service;
+    private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
     private static final Logger logger = LoggerFactory.getLogger(SecurityConfiguration.class);
 
     @Bean
@@ -79,9 +84,15 @@ public class SecurityConfiguration {
         return (request, response, authentication) -> {
             if (authentication instanceof OAuth2AuthenticationToken oAuth2Token) {
                 OAuth2User oAuth2User = oAuth2Token.getPrincipal();
-                oAuth2Service.registerOrUpdateOAuth2User(oAuth2User, oAuth2Token.getAuthorizedClientRegistrationId());
+                String provider = oAuth2Token.getAuthorizedClientRegistrationId();
+                String email = oAuth2Service.registerOrUpdateOAuth2User(oAuth2User, provider);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                String jwt = jwtService.generateToken(userDetails);
+                String redirectUrl = "http://localhost:3000/oauth2/redirect?token=" + jwt;
+                response.sendRedirect(redirectUrl);
+            } else {
+                response.sendRedirect("http://localhost:3000/login?error=OAuth2");
             }
-            response.sendRedirect("http://localhost:3000/home");
         };
     }
 
