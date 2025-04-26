@@ -11,6 +11,7 @@ import org.tutorial.springemailtutorial.dto.LoginUserDto;
 import org.tutorial.springemailtutorial.dto.RegisterUserDto;
 import org.tutorial.springemailtutorial.dto.VerifyUserDto;
 import org.tutorial.springemailtutorial.model.User;
+import org.tutorial.springemailtutorial.model.myColumns;
 import org.tutorial.springemailtutorial.service.AuthenticationService;
 import org.tutorial.springemailtutorial.service.JwtService;
 
@@ -26,6 +27,7 @@ public class AuthenticationController {
 
     private final JwtService jwtService;
     private final AuthenticationService authenticationService;
+    private final org.tutorial.springemailtutorial.service.myColumnsService myColumnsService;
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody LoginUserDto loginUserDto) {
@@ -94,4 +96,17 @@ public class AuthenticationController {
             return ResponseEntity.status(500).body("Failed to resend verification code.");
         }
     }
+
+    @PostMapping("/columns")
+    public ResponseEntity<?> createColumn(@RequestBody myColumns column) {
+        logger.info("Creating a new column with title: {}", column.getTitle());
+        try {
+            myColumns createdColumn = myColumnsService.saveColumn(column);
+            return ResponseEntity.status(201).body(createdColumn);  // 201 Created status code
+        } catch (Exception e) {
+            logger.error("Failed to create column: {}", e.getMessage());
+            return ResponseEntity.status(500).body("Failed to create column. Please try again.");
+        }
+    }
+
 }
