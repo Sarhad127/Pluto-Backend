@@ -8,6 +8,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.annotation.*;
 import org.tutorial.springemailtutorial.customExceptions.DuplicateUserException;
 import org.tutorial.springemailtutorial.dto.LoginUserDto;
+import org.tutorial.springemailtutorial.dto.MyColumnsDto;
 import org.tutorial.springemailtutorial.dto.RegisterUserDto;
 import org.tutorial.springemailtutorial.dto.VerifyUserDto;
 import org.tutorial.springemailtutorial.model.User;
@@ -98,11 +99,11 @@ public class AuthenticationController {
     }
 
     @PostMapping("/columns")
-    public ResponseEntity<?> createColumn(@RequestBody myColumns column) {
-        logger.info("Creating a new column with title: {}", column.getTitle());
+    public ResponseEntity<?> createColumn(@RequestBody MyColumnsDto columnDto) {
+        logger.info("Creating a new column with title: {}", columnDto.getTitle());
         try {
-            myColumns createdColumn = myColumnsService.saveColumn(column);
-            return ResponseEntity.status(201).body(createdColumn);  // 201 Created status code
+            myColumns createdColumn = myColumnsService.saveColumn(columnDto);
+            return ResponseEntity.status(201).body(createdColumn);
         } catch (Exception e) {
             logger.error("Failed to create column: {}", e.getMessage());
             return ResponseEntity.status(500).body("Failed to create column. Please try again.");
