@@ -99,15 +99,15 @@ public class AuthenticationController {
     }
 
     @PostMapping("/columns")
-    public ResponseEntity<?> createColumn(@RequestBody MyColumnsDto columnDto) {
+    public ResponseEntity<?> createColumn(@RequestBody MyColumnsDto columnDto, @RequestHeader("Authorization") String token) {
         logger.info("Creating a new column with title: {}", columnDto.getTitle());
+        logger.info("Authorization header: {}", token);
         try {
-            myColumns createdColumn = myColumnsService.saveColumn(columnDto);
+            myColumns createdColumn = myColumnsService.saveColumn(columnDto, token);
             return ResponseEntity.status(201).body(createdColumn);
         } catch (Exception e) {
             logger.error("Failed to create column: {}", e.getMessage());
             return ResponseEntity.status(500).body("Failed to create column. Please try again.");
         }
     }
-
 }
