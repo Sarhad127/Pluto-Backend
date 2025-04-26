@@ -15,6 +15,7 @@ public class myColumns {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
+    private Integer placement;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

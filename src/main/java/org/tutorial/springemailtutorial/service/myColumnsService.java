@@ -1,5 +1,6 @@
 package org.tutorial.springemailtutorial.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.tutorial.springemailtutorial.dto.MyColumnsDto;
@@ -8,6 +9,7 @@ import org.tutorial.springemailtutorial.model.myColumns;
 import org.tutorial.springemailtutorial.repository.MyColumnsRepository;
 import org.tutorial.springemailtutorial.repository.UserRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -30,23 +32,42 @@ public class myColumnsService {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new RuntimeException("Invalid authorization header");
         }
-        String token = authHeader.substring(7);
+        String token = authHeader.substring(7).trim();
         String username = jwtService.extractUsername(token);
         Optional<User> user = userRepository.findByUsername(username);
         if (user.isEmpty()) {
             throw new RuntimeException("User not found.");
         }
+        List<myColumns> userColumns = myColumnsRepository.findByUserIdOrderByPlacement(user.get().getId());
+        int placement = userColumns.size() + 1;
         myColumns column = new myColumns();
         column.setTitle(columnDto.getTitle());
         column.setUser(user.get());
+        column.setPlacement(placement);
         return myColumnsRepository.save(column);
     }
+
+    @Transactional
+    public void reorderColumns(List<MyColumnsDto> columnDtos, String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Invalid authorization header");
+        }
+        String token = authHeader.substring(7).trim();
+        String username = jwtService.extractUsername(token);
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isEmpty()) {
+            throw new RuntimeException("User not found.");
+        }
+        List<myColumns> columns = myColumnsRepository.findByUserIdOrderByPlacement(user.get().getId());
+        for (int i = 0; i < columnDtos.size(); i++) {
+            MyColumnsDto dto = columnDtos.get(i);
+            myColumns column = columns.stream()
+                    .filter(c -> c.getTitle().equals(dto.getTitle()))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("Column not found"));
+
+            column.setPlacement(i + 1);
+            myColumnsRepository.save(column);
+        }
+    }
 }
-
-/*
-* JWT tokens must be base64url encoded without spaces
-
-The "Bearer " prefix was causing the token parser to fail when it encountered the space
-
-By removing the prefix, we pass only the actual token to the JWT service
-* */

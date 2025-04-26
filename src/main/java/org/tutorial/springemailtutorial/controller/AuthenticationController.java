@@ -17,6 +17,7 @@ import org.tutorial.springemailtutorial.service.AuthenticationService;
 import org.tutorial.springemailtutorial.service.JwtService;
 
 import java.util.Collections;
+import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
@@ -99,7 +100,8 @@ public class AuthenticationController {
     }
 
     @PostMapping("/columns")
-    public ResponseEntity<?> createColumn(@RequestBody MyColumnsDto columnDto, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> createColumn(@RequestBody MyColumnsDto columnDto,
+                                          @RequestHeader("Authorization") String token) {
         logger.info("Creating a new column with title: {}", columnDto.getTitle());
         logger.info("Authorization header: {}", token);
         try {
@@ -108,6 +110,19 @@ public class AuthenticationController {
         } catch (Exception e) {
             logger.error("Failed to create column: {}", e.getMessage());
             return ResponseEntity.status(500).body("Failed to create column. Please try again.");
+        }
+    }
+
+    @PostMapping("/columns/reorder")
+    public ResponseEntity<?> reorderColumns(@RequestBody List<MyColumnsDto> columnDtos,
+                                            @RequestHeader("Authorization") String token) {
+        logger.info("Reordering columns for user with token: {}", token);
+        try {
+            myColumnsService.reorderColumns(columnDtos, token);
+            return ResponseEntity.status(200).body("Columns reordered successfully.");
+        } catch (Exception e) {
+            logger.error("Failed to reorder columns: {}", e.getMessage());
+            return ResponseEntity.status(500).body("Failed to reorder columns. Please try again.");
         }
     }
 }
