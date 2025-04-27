@@ -1,6 +1,5 @@
 package org.tutorial.springemailtutorial.service;
 
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.tutorial.springemailtutorial.dto.MyTaskDto;
@@ -11,7 +10,6 @@ import org.tutorial.springemailtutorial.repository.MyColumnsRepository;
 import org.tutorial.springemailtutorial.repository.TaskRepository;
 import org.tutorial.springemailtutorial.repository.UserRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -35,6 +33,12 @@ public class TaskService {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new RuntimeException("Invalid authorization header");
         }
+        if (taskDto.getText() == null || taskDto.getText().trim().isEmpty()) {
+            throw new IllegalArgumentException("Task text cannot be empty");
+        }
+        if (taskDto.getColumnId() == null) {
+            throw new IllegalArgumentException("Column ID cannot be null");
+        }
         String token = authHeader.substring(7).trim();
         String username = jwtService.extractUsername(token);
         Optional<User> user = userRepository.findByUsername(username);
@@ -46,36 +50,13 @@ public class TaskService {
             throw new RuntimeException("Column not found.");
         }
         myColumns column = columnOpt.get();
+        Optional<Integer> maxPositionOpt = TaskRepository.findMaxPositionByColumnId(column.getId());
+        int newPosition = maxPositionOpt.map(pos -> pos + 1).orElse(1);
         MyTask task = new MyTask();
         task.setText(taskDto.getText());
         task.setColor(taskDto.getColor());
-        task.setPosition(0);
+        task.setPosition(newPosition);
         task.setColumn(column);
         return TaskRepository.save(task);
-    }
-
-    @Transactional
-    public void reorderTasks(List<MyTaskDto> taskDtos, String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new RuntimeException("Invalid authorization header");
-        }
-        String token = authHeader.substring(7).trim();
-        String username = jwtService.extractUsername(token);
-        Optional<User> user = userRepository.findByUsername(username);
-        if (user.isEmpty()) {
-            throw new RuntimeException("User not found.");
-        }
-        for (MyTaskDto dto : taskDtos) {
-            Optional<MyTask> taskOpt = TaskRepository.findById(dto.getId());
-            if (taskOpt.isEmpty()) {
-                throw new RuntimeException("Task not found.");
-            }
-            MyTask task = taskOpt.get();
-            task.setText(dto.getText());
-            task.setColor(dto.getColor());
-            task.setPosition(dto.getPosition());
-            task.setColumn(myColumnsRepository.findById(dto.getColumnId()).orElseThrow(() -> new RuntimeException("Column not found.")));
-            TaskRepository.save(task);
-        }
     }
 }
