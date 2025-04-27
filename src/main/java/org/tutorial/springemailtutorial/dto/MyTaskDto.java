@@ -13,4 +13,5 @@ public class MyTaskDto {
     private String text;
     private String color;
     private Long columnId;
+    private int position;
 }

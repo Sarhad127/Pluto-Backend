@@ -49,6 +49,7 @@ public class TaskService {
         MyTask task = new MyTask();
         task.setText(taskDto.getText());
         task.setColor(taskDto.getColor());
+        task.setPosition(0);
         task.setColumn(column);
         return TaskRepository.save(task);
     }
@@ -71,6 +72,9 @@ public class TaskService {
             }
             MyTask task = taskOpt.get();
             task.setText(dto.getText());
+            task.setColor(dto.getColor());
+            task.setPosition(dto.getPosition());
+            task.setColumn(myColumnsRepository.findById(dto.getColumnId()).orElseThrow(() -> new RuntimeException("Column not found.")));
             TaskRepository.save(task);
         }
     }

@@ -19,6 +19,8 @@ public class MyTask {
 
     private String color;
 
+    private int position;
+
     @ManyToOne
     @JoinColumn(name = "column_id")
     @JsonBackReference
