@@ -142,4 +142,17 @@ public class AuthenticationController {
         }
     }
 
+    @DeleteMapping("/columns/delete/{id}")
+    public ResponseEntity<?> deleteColumn(@PathVariable Long id,
+                                          @RequestHeader("Authorization") String token) {
+        logger.info("Deleting column with id: {}", id);
+        logger.info("Authorization header: {}", token);
+        try {
+            myColumnsService.deleteColumn(id, token);
+            return ResponseEntity.status(200).body(new ResponseMessage("Column deleted successfully."));
+        } catch (Exception e) {
+            logger.error("Failed to delete column: {}", e.getMessage());
+            return ResponseEntity.status(500).body(new ResponseMessage("Failed to delete column. Please try again."));
+        }
+    }
 }

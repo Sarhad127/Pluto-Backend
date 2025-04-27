@@ -102,4 +102,24 @@ public class myColumnsService {
         return myColumnsRepository.save(column);
     }
 
+    @Transactional
+    public void deleteColumn(Long columnId, String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Invalid authorization header");
+        }
+
+        String token = authHeader.substring(7).trim();
+        String username = jwtService.extractUsername(token);
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isEmpty()) {
+            throw new RuntimeException("User not found.");
+        }
+
+        myColumns column = myColumnsRepository.findById(columnId)
+                .orElseThrow(() -> new RuntimeException("Column not found"));
+        if (!column.getUser().getId().equals(user.get().getId())) {
+            throw new RuntimeException("User not authorized to delete this column.");
+        }
+        myColumnsRepository.delete(column);
+    }
 }
