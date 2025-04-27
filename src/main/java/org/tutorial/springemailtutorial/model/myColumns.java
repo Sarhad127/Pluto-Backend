@@ -18,7 +18,7 @@ public class myColumns {
     private Long id;
     private String title;
     private Integer placement;
-    private String Color;
+    private String titleColor;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

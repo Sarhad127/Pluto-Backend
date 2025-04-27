@@ -42,7 +42,7 @@ public class myColumnsService {
         int placement = userColumns.size() + 1;
         myColumns column = new myColumns();
         column.setTitle(columnDto.getTitle());
-        column.setColor(columnDto.getColor());
+        column.setTitleColor(columnDto.getTitleColor());
         column.setUser(user.get());
         column.setPlacement(placement);
         return myColumnsRepository.save(column);
@@ -69,8 +69,8 @@ public class myColumnsService {
 
             column.setPlacement(i + 1);
 
-            if (dto.getColor() != null) {
-                column.setColor(dto.getColor());
+            if (dto.getTitleColor() != null) {
+                column.setTitleColor(dto.getTitleColor());
             }
             myColumnsRepository.save(column);
         }
@@ -97,7 +97,7 @@ public class myColumnsService {
         }
 
         column.setTitle(columnDto.getTitle());
-        column.setColor(columnDto.getColor());
+        column.setTitleColor(columnDto.getTitleColor());
 
         return myColumnsRepository.save(column);
     }

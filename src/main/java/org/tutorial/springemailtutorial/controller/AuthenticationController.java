@@ -103,7 +103,7 @@ public class AuthenticationController {
     @PostMapping("/columns")
     public ResponseEntity<?> createColumn(@RequestBody MyColumnsDto columnDto,
                                           @RequestHeader("Authorization") String token) {
-        logger.info("Creating a new column with title: {}, color: {}", columnDto.getTitle(), columnDto.getColor());
+        logger.info("Creating a new column with title: {}, color: {}", columnDto.getTitle(), columnDto.getTitleColor());
         logger.info("Authorization header: {}", token);
         try {
             myColumns createdColumn = myColumnsService.saveColumn(columnDto, token);
@@ -131,7 +131,7 @@ public class AuthenticationController {
     public ResponseEntity<?> updateColumn(@PathVariable Long id,
                                           @RequestBody MyColumnsDto columnDto,
                                           @RequestHeader("Authorization") String token) {
-        logger.info("Updating column with id: {}, title: {}, color: {}", id, columnDto.getTitle(), columnDto.getColor());
+        logger.info("Updating column with id: {}, title: {}, color: {}", id, columnDto.getTitle(), columnDto.getTitleColor());
         logger.info("Authorization header: {}", token);
         try {
             myColumns updatedColumn = myColumnsService.updateColumn(id, columnDto, token);
