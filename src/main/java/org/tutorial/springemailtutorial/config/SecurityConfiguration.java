@@ -46,7 +46,7 @@ public class SecurityConfiguration {
                 .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/auth/**", "/users/**", "/oauth2/**", "/login/**").permitAll()
+                        .requestMatchers("/auth/**", "/users/**", "/oauth2/**", "/login/**","/tasks/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2

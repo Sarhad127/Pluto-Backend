@@ -13,6 +13,7 @@ import org.tutorial.springemailtutorial.dto.RegisterUserDto;
 import org.tutorial.springemailtutorial.dto.VerifyUserDto;
 import org.tutorial.springemailtutorial.model.User;
 import org.tutorial.springemailtutorial.model.myColumns;
+import org.tutorial.springemailtutorial.responses.ResponseMessage;
 import org.tutorial.springemailtutorial.service.AuthenticationService;
 import org.tutorial.springemailtutorial.service.JwtService;
 
@@ -102,7 +103,7 @@ public class AuthenticationController {
     @PostMapping("/columns")
     public ResponseEntity<?> createColumn(@RequestBody MyColumnsDto columnDto,
                                           @RequestHeader("Authorization") String token) {
-        logger.info("Creating a new column with title: {}", columnDto.getTitle());
+        logger.info("Creating a new column with title: {}, color: {}", columnDto.getTitle(), columnDto.getColor());
         logger.info("Authorization header: {}", token);
         try {
             myColumns createdColumn = myColumnsService.saveColumn(columnDto, token);
@@ -119,10 +120,26 @@ public class AuthenticationController {
         logger.info("Reordering columns for user with token: {}", token);
         try {
             myColumnsService.reorderColumns(columnDtos, token);
-            return ResponseEntity.status(200).body("Columns reordered successfully.");
+            return ResponseEntity.status(200).body(new ResponseMessage("Columns reordered successfully."));
         } catch (Exception e) {
             logger.error("Failed to reorder columns: {}", e.getMessage());
-            return ResponseEntity.status(500).body("Failed to reorder columns. Please try again.");
+            return ResponseEntity.status(500).body(new ResponseMessage("Failed to reorder columns. Please try again."));
         }
     }
+
+    @PutMapping("/columns/{id}")
+    public ResponseEntity<?> updateColumn(@PathVariable Long id,
+                                          @RequestBody MyColumnsDto columnDto,
+                                          @RequestHeader("Authorization") String token) {
+        logger.info("Updating column with id: {}, title: {}, color: {}", id, columnDto.getTitle(), columnDto.getColor());
+        logger.info("Authorization header: {}", token);
+        try {
+            myColumns updatedColumn = myColumnsService.updateColumn(id, columnDto, token);
+            return ResponseEntity.status(200).body(updatedColumn);
+        } catch (Exception e) {
+            logger.error("Failed to update column: {}", e.getMessage());
+            return ResponseEntity.status(500).body("Failed to update column. Please try again.");
+        }
+    }
+
 }

@@ -42,6 +42,7 @@ public class myColumnsService {
         int placement = userColumns.size() + 1;
         myColumns column = new myColumns();
         column.setTitle(columnDto.getTitle());
+        column.setColor(columnDto.getColor());
         column.setUser(user.get());
         column.setPlacement(placement);
         return myColumnsRepository.save(column);
@@ -67,7 +68,38 @@ public class myColumnsService {
                     .orElseThrow(() -> new RuntimeException("Column not found"));
 
             column.setPlacement(i + 1);
+
+            if (dto.getColor() != null) {
+                column.setColor(dto.getColor());
+            }
             myColumnsRepository.save(column);
         }
     }
+
+    @Transactional
+    public myColumns updateColumn(Long columnId, MyColumnsDto columnDto, String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Invalid authorization header");
+        }
+
+        String token = authHeader.substring(7).trim();
+        String username = jwtService.extractUsername(token);
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isEmpty()) {
+            throw new RuntimeException("User not found.");
+        }
+
+        myColumns column = myColumnsRepository.findById(columnId)
+                .orElseThrow(() -> new RuntimeException("Column not found"));
+
+        if (!column.getUser().getId().equals(user.get().getId())) {
+            throw new RuntimeException("User not authorized to edit this column.");
+        }
+
+        column.setTitle(columnDto.getTitle());
+        column.setColor(columnDto.getColor());
+
+        return myColumnsRepository.save(column);
+    }
+
 }

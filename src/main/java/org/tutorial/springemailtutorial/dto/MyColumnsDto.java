@@ -10,4 +10,5 @@ import lombok.AllArgsConstructor;
 public class MyColumnsDto {
     private String title;
     private Integer placement;
+    private String Color;
 }
