@@ -48,6 +48,7 @@ public class TaskService {
         myColumns column = columnOpt.get();
         MyTask task = new MyTask();
         task.setText(taskDto.getText());
+        task.setColor(taskDto.getColor());
         task.setColumn(column);
         return TaskRepository.save(task);
     }
