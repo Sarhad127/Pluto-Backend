@@ -53,4 +53,17 @@ public class TaskController {
         }
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/update/{taskId}")
+    public ResponseEntity<?> updateTask(
+            @PathVariable Long taskId,
+            @RequestBody MyTaskDto taskDto,
+            @RequestHeader("Authorization") String token) {
+        try {
+            MyTask updatedTask = taskService.updateTask(taskId, taskDto, token);
+            return ResponseEntity.status(200).body(updatedTask);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to update task: " + e.getMessage());
+        }
+    }
 }

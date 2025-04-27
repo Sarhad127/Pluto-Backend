@@ -59,4 +59,35 @@ public class TaskService {
         task.setColumn(column);
         return TaskRepository.save(task);
     }
+
+    public MyTask updateTask(Long taskId, MyTaskDto taskDto, String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Invalid authorization header");
+        }
+        String token = authHeader.substring(7).trim();
+        String username = jwtService.extractUsername(token);
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isEmpty()) {
+            throw new RuntimeException("User not found.");
+        }
+        Optional<MyTask> taskOpt = TaskRepository.findById(taskId);
+        if (taskOpt.isEmpty()) {
+            throw new RuntimeException("Task not found with ID: " + taskId);
+        }
+        MyTask task = taskOpt.get();
+        if (taskDto.getText() != null && !taskDto.getText().trim().isEmpty()) {
+            task.setText(taskDto.getText());
+        }
+        if (taskDto.getColor() != null) {
+            task.setColor(taskDto.getColor());
+        }
+        if (taskDto.getColumnId() != null) {
+            Optional<myColumns> columnOpt = myColumnsRepository.findById(taskDto.getColumnId());
+            if (columnOpt.isEmpty()) {
+                throw new RuntimeException("Column not found.");
+            }
+            task.setColumn(columnOpt.get());
+        }
+        return TaskRepository.save(task);
+    }
 }
