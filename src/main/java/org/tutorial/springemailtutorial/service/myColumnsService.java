@@ -121,5 +121,11 @@ public class myColumnsService {
             throw new RuntimeException("User not authorized to delete this column.");
         }
         myColumnsRepository.delete(column);
+        List<myColumns> remainingColumns = myColumnsRepository.findByUserIdOrderByPlacement(user.get().getId());
+        for (int i = 0; i < remainingColumns.size(); i++) {
+            myColumns col = remainingColumns.get(i);
+            col.setPlacement(i + 1);
+            myColumnsRepository.save(col);
+        }
     }
 }
