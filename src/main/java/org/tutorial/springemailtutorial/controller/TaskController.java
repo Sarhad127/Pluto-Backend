@@ -80,4 +80,14 @@ public class TaskController {
             return ResponseEntity.status(500).body("Failed to move task: " + e.getMessage());
         }
     }
+
+    @DeleteMapping("/delete/{taskId}")
+    public ResponseEntity<?> deleteTask(@PathVariable Long taskId, @RequestHeader("Authorization") String authHeader) {
+        try {
+            taskService.deleteTask(taskId, authHeader);
+            return ResponseEntity.status(200).body("Task deleted successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to delete task: " + e.getMessage());
+        }
+    }
 }

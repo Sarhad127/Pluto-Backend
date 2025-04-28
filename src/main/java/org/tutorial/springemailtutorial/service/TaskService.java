@@ -142,4 +142,24 @@ public class TaskService {
                 ))
                 .collect(Collectors.toList());
     }
+
+    public void deleteTask(Long taskId, String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Invalid authorization header");
+        }
+        String token = authHeader.substring(7).trim();
+        String username = jwtService.extractUsername(token);
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isEmpty()) {
+            throw new RuntimeException("User not found.");
+        }
+
+        Optional<MyTask> taskOpt = TaskRepository.findById(taskId);
+        if (taskOpt.isEmpty()) {
+            throw new RuntimeException("Task not found with ID: " + taskId);
+        }
+
+        MyTask task = taskOpt.get();
+        TaskRepository.delete(task);
+    }
 }
