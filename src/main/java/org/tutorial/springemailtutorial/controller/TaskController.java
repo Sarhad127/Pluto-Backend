@@ -66,4 +66,18 @@ public class TaskController {
             return ResponseEntity.status(500).body("Failed to update task: " + e.getMessage());
         }
     }
+
+    @PutMapping("/move/{taskId}")
+    public ResponseEntity<?> moveTaskToAnotherColumn(
+            @PathVariable Long taskId,
+            @RequestParam Long newColumnId,
+            @RequestHeader("Authorization") String authHeader) {
+
+        try {
+            MyTask updatedTask = taskService.moveTaskToAnotherColumn(taskId, newColumnId, authHeader);
+            return ResponseEntity.ok(updatedTask);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to move task: " + e.getMessage());
+        }
+    }
 }

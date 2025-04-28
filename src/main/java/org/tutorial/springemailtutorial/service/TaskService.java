@@ -90,4 +90,31 @@ public class TaskService {
         }
         return TaskRepository.save(task);
     }
+
+    public MyTask moveTaskToAnotherColumn(Long taskId, Long newColumnId, String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Invalid authorization header");
+        }
+        String token = authHeader.substring(7).trim();
+        String username = jwtService.extractUsername(token);
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isEmpty()) {
+            throw new RuntimeException("User not found.");
+        }
+        Optional<MyTask> taskOpt = TaskRepository.findById(taskId);
+        if (taskOpt.isEmpty()) {
+            throw new RuntimeException("Task not found with ID: " + taskId);
+        }
+        MyTask task = taskOpt.get();
+        Optional<myColumns> newColumnOpt = myColumnsRepository.findById(newColumnId);
+        if (newColumnOpt.isEmpty()) {
+            throw new RuntimeException("Column not found with ID: " + newColumnId);
+        }
+        myColumns newColumn = newColumnOpt.get();
+        task.setColumn(newColumn);
+        Optional<Integer> maxPositionOpt = TaskRepository.findMaxPositionByColumnId(newColumnId);
+        int newPosition = maxPositionOpt.map(pos -> pos + 1).orElse(1);
+        task.setPosition(newPosition);
+        return TaskRepository.save(task);
+    }
 }
