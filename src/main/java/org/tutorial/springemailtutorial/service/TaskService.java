@@ -31,7 +31,7 @@ public class TaskService {
         this.jwtService = jwtService;
     }
 
-    public MyTask createTask(MyTaskDto taskDto, String authHeader) {
+    public MyTaskDto createTask(MyTaskDto taskDto, String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new RuntimeException("Invalid authorization header");
         }
@@ -59,7 +59,15 @@ public class TaskService {
         task.setColor(taskDto.getColor());
         task.setPosition(newPosition);
         task.setColumn(column);
-        return TaskRepository.save(task);
+        MyTask savedTask = TaskRepository.save(task);
+
+        MyTaskDto savedTaskDto = new MyTaskDto();
+        savedTaskDto.setId(savedTask.getId());
+        savedTaskDto.setText(savedTask.getText());
+        savedTaskDto.setColor(savedTask.getColor());
+        savedTaskDto.setColumnId(savedTask.getColumn().getId());
+        savedTaskDto.setPosition(savedTask.getPosition());
+        return savedTaskDto;
     }
 
     public MyTask updateTask(Long taskId, MyTaskDto taskDto, String authHeader) {

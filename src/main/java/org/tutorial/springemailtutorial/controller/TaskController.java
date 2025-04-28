@@ -26,8 +26,16 @@ public class TaskController {
     public ResponseEntity<?> createTask(@RequestBody MyTaskDto taskDto, @RequestHeader("Authorization") String token) {
         try {
             System.out.println("Received Task DTO: " + taskDto);
-            MyTask createdTask = taskService.createTask(taskDto, token);
-            return ResponseEntity.status(201).body(createdTask);
+            MyTaskDto createdTask = taskService.createTask(taskDto, token);
+
+            MyTaskDto createdTaskDto = new MyTaskDto();
+            createdTaskDto.setId(createdTask.getId());
+            createdTaskDto.setText(createdTask.getText());
+            createdTaskDto.setColor(createdTask.getColor());
+            createdTaskDto.setColumnId(createdTask.getColumnId());
+            createdTaskDto.setPosition(createdTask.getPosition());
+
+            return ResponseEntity.status(201).body(createdTaskDto);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Failed to create task: " + e.getMessage());
         }
@@ -41,6 +49,7 @@ public class TaskController {
             throw new IllegalArgumentException("All tasks must have IDs for reordering");
         }
         for (MyTaskDto dto : taskDtos) {
+            System.out.println("Reordering Task: " + dto);
             MyTask task = taskRepository.findById(dto.getId())
                     .orElseThrow(() -> new RuntimeException("Task not found: " + dto.getId()));
             task.setPosition(dto.getPosition());
