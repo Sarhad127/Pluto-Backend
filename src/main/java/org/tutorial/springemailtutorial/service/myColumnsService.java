@@ -11,6 +11,7 @@ import org.tutorial.springemailtutorial.repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class myColumnsService {
@@ -127,5 +128,17 @@ public class myColumnsService {
             col.setPlacement(i + 1);
             myColumnsRepository.save(col);
         }
+    }
+
+    public List<MyColumnsDto> getColumnsForUser(Long userId) {
+        List<myColumns> columns = myColumnsRepository.findByUserIdOrderByPlacement(userId);
+
+        return columns.stream()
+                .map(column -> new MyColumnsDto(
+                        column.getId(),
+                        column.getTitle(),
+                        column.getPlacement(),
+                        column.getTitleColor()))
+                .collect(Collectors.toList());
     }
 }

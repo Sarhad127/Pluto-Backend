@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MyColumnsDto {
+
+    private Long id;
     private String title;
     private Integer placement;
     private String titleColor;

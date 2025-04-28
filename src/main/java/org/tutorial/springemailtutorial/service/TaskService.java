@@ -10,7 +10,9 @@ import org.tutorial.springemailtutorial.repository.MyColumnsRepository;
 import org.tutorial.springemailtutorial.repository.TaskRepository;
 import org.tutorial.springemailtutorial.repository.UserRepository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
@@ -116,5 +118,28 @@ public class TaskService {
         int newPosition = maxPositionOpt.map(pos -> pos + 1).orElse(1);
         task.setPosition(newPosition);
         return TaskRepository.save(task);
+    }
+
+    public List<MyTaskDto> getTasksForUser(Long userId) {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            throw new RuntimeException("User not found with ID: " + userId);
+        }
+
+        List<myColumns> columns = myColumnsRepository.findByUserIdOrderByPlacement(userId);
+
+        List<MyTask> tasks = columns.stream()
+                .flatMap(column -> column.getTasks().stream())
+                .collect(Collectors.toList());
+
+        return tasks.stream()
+                .map(task -> new MyTaskDto(
+                        task.getId(),
+                        task.getText(),
+                        task.getColor(),
+                        task.getColumn().getId(),
+                        task.getPosition()
+                ))
+                .collect(Collectors.toList());
     }
 }

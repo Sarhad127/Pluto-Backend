@@ -1,0 +1,18 @@
+package org.tutorial.springemailtutorial.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class UserDataDto {
+
+    private Long userId;
+    private List<MyTaskDto> tasks;
+    private List<MyColumnsDto> columns;
+
+}
