@@ -20,7 +20,7 @@ public class UserService {
         if (newUsername.equals(currentEmail)) {
             throw new IllegalArgumentException("New username cannot be the same as the current one.");
         }
-        if (userRepository.existsByEmail(newUsername)) {
+        if (userRepository.existsByUsername(newUsername)) {
             throw new IllegalArgumentException("Username already taken.");
         }
         user.setUsername(newUsername);
