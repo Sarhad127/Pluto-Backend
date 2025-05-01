@@ -34,4 +34,24 @@ public class BoardController {
         List<Board> boards = boardService.getBoards(authHeader);
         return ResponseEntity.ok(boards);
     }
+
+    @PostMapping
+    public ResponseEntity<Board> createBoard(@RequestBody Board board,
+                                             @RequestHeader("Authorization") String authHeader) {
+        Board createdBoard = boardService.createBoard(board, authHeader);
+        System.out.println("createdBoard: " + createdBoard);
+        return new ResponseEntity<>(createdBoard, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{position}")
+    public ResponseEntity<Board> getBoardByPosition(@PathVariable int position,
+                                                    @RequestHeader("Authorization") String authHeader) {
+        try {
+            System.out.println("position: " + position);
+            Board board = boardService.getBoardByPosition(position, authHeader);
+            return ResponseEntity.ok(board);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 }

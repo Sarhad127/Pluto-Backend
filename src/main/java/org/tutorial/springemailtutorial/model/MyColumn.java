@@ -28,8 +28,8 @@ public class MyColumn {
     private List<MyTask> tasks;
 
     @ManyToOne
-    @JoinColumn(name = "board_id", nullable = false)
-    @JsonBackReference
+    @JoinColumn(name = "board_id")
+    @JsonBackReference(value = "board-columns")
     private Board board;
 
 }

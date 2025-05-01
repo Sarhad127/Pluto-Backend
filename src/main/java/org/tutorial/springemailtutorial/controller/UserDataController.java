@@ -46,34 +46,28 @@ public class UserDataController {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
-
         String token = authHeader.substring(7).trim();
         String username = jwtService.extractUsername(token);
-
         User user = UserRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
-
         Long userId = user.getId();
-
         List<Board> boards = boardRepository.findByUser(user);
-
         Long boardId = null;
+        int boardPosition = 1;
         List<MyColumnsDto> columns = new ArrayList<>();
-
         if (!boards.isEmpty()) {
-            boardId = boards.get(0).getId();
+            Board board = boards.get(0);
+            boardId = board.getId();
+            boardPosition = board.getPosition();
             columns = columnsService.getColumnsForBoard(boardId);
         }
-
         List<MyTaskDto> tasks = taskService.getTasksForUser(authHeader);
-
         UserDataDto userDataDto = new UserDataDto();
         userDataDto.setUserId(userId);
         userDataDto.setBoardId(boardId);
+        userDataDto.setBoardPosition(boardPosition);
         userDataDto.setColumns(columns);
         userDataDto.setTasks(tasks);
-
         return ResponseEntity.ok(userDataDto);
     }
-
 }

@@ -52,22 +52,46 @@ public class BoardService {
         return boardRepository.save(defaultBoard);
     }
 
-//    public Board createBoard(Board board, String authHeader) {
-//        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-//            throw new RuntimeException("Invalid authorization header");
-//        }
-//        String token = authHeader.substring(7).trim();
-//        String username = jwtService.extractUsername(token);
-//        Optional<User> userOptional = userRepository.findByUsername(username);
-//        if (userOptional.isEmpty()) {
-//            throw new RuntimeException("User not found.");
-//        }
-//        board.setUser(userOptional.get());
-//        return boardRepository.save(board);
-//    }
-//
-//    public List<Board> getBoardsByUser(User user) {
-//        return boardRepository.findByUser(user);
-//    }
+    public Board createBoard(Board board, String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Invalid authorization header");
+        }
+        String token = authHeader.substring(7).trim();
+        String username = jwtService.extractUsername(token);
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        if (userOptional.isEmpty()) {
+            throw new RuntimeException("User not found.");
+        }
+        User user = userOptional.get();
+        if (board.getTitle() == null || board.getTitle().trim().isEmpty()) {
+            throw new IllegalArgumentException("Board name cannot be empty");
+        }
+        List<Board> userBoards = boardRepository.findByUser(user);
+        int maxPosition = userBoards.stream()
+                .mapToInt(Board::getPosition)
+                .max()
+                .orElse(0);
+        board.setPosition(maxPosition + 1);
+        board.setUser(user);
+        return boardRepository.save(board);
+    }
 
+    public Board getBoardByPosition(int position, String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Invalid authorization header");
+        }
+        String token = authHeader.substring(7).trim();
+        String username = jwtService.extractUsername(token);
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        if (userOptional.isEmpty()) {
+            throw new RuntimeException("User not found.");
+        }
+        User user = userOptional.get();
+        Optional<Board> boardOptional = boardRepository.findByUserAndPosition(user, position);
+        if (boardOptional.isPresent()) {
+            return boardOptional.get();
+        } else {
+            throw new RuntimeException("Board with position " + position + " not found for user " + username);
+        }
+    }
 }

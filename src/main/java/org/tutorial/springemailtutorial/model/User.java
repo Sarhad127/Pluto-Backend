@@ -41,7 +41,7 @@ public class User implements UserDetails {
     private String provider;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference(value = "user-boards")
     @ToString.Exclude
     private List<Board> boards;
 
