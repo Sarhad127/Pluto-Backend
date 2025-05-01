@@ -10,6 +10,7 @@ import org.tutorial.springemailtutorial.model.User;
 import org.tutorial.springemailtutorial.repository.BoardRepository;
 import org.tutorial.springemailtutorial.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -66,7 +67,6 @@ public class BoardService {
                 .orElse(0);
         board.setPosition(maxPosition + 1);
         board.setUser(user);
-
         Board savedBoard = boardRepository.save(board);
         return new BoardDto(savedBoard.getId(), savedBoard.getTitle(), savedBoard.getPosition(), user.getId(), convertToColumnsDto(savedBoard.getColumns()));
     }
@@ -89,6 +89,9 @@ public class BoardService {
     }
 
     private List<MyColumnsDto> convertToColumnsDto(List<MyColumn> columns) {
+        if (columns == null) {
+            columns = new ArrayList<>();
+        }
         return columns.stream()
                 .map(column -> new MyColumnsDto(column.getId(), column.getTitle(), column.getPlacement(), column.getTitleColor()))
                 .collect(Collectors.toList());
