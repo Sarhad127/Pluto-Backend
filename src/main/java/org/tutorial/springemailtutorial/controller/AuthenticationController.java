@@ -9,10 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.annotation.*;
 import org.tutorial.springemailtutorial.customExceptions.DuplicateUserException;
-import org.tutorial.springemailtutorial.dto.LoginUserDto;
-import org.tutorial.springemailtutorial.dto.MyColumnsDto;
-import org.tutorial.springemailtutorial.dto.RegisterUserDto;
-import org.tutorial.springemailtutorial.dto.VerifyUserDto;
+import org.tutorial.springemailtutorial.dto.*;
 import org.tutorial.springemailtutorial.model.Board;
 import org.tutorial.springemailtutorial.model.User;
 import org.tutorial.springemailtutorial.model.MyColumn;
@@ -44,7 +41,7 @@ public class AuthenticationController {
             User authenticatedUser = authenticationService.authenticate(loginUserDto);
             String jwtToken = jwtService.generateToken(authenticatedUser);
             String authHeader = "Bearer " + jwtToken;
-            List<Board> userBoards = boardService.getBoards(authHeader);
+            List<BoardDto> userBoards = boardService.getBoards(authHeader);
             if (userBoards == null || userBoards.isEmpty()) {
                 Board newBoard = boardService.createDefaultBoard(authenticatedUser);
                 logger.info("No boards found, created a default board with ID: {}", newBoard.getId());

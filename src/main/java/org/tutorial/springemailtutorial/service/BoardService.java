@@ -2,13 +2,17 @@ package org.tutorial.springemailtutorial.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.tutorial.springemailtutorial.dto.BoardDto;
+import org.tutorial.springemailtutorial.dto.MyColumnsDto;
 import org.tutorial.springemailtutorial.model.Board;
+import org.tutorial.springemailtutorial.model.MyColumn;
 import org.tutorial.springemailtutorial.model.User;
 import org.tutorial.springemailtutorial.repository.BoardRepository;
 import org.tutorial.springemailtutorial.repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class BoardService {
@@ -22,47 +26,36 @@ public class BoardService {
     @Autowired
     private JwtService jwtService;
 
-    public List<Board> getBoards(String authHeader) {
+    private String extractUsernameFromToken(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new RuntimeException("Invalid authorization header");
         }
         String token = authHeader.substring(7).trim();
-        String username = jwtService.extractUsername(token);
+        return jwtService.extractUsername(token);
+    }
+
+    public List<BoardDto> getBoards(String authHeader) {
+        String username = extractUsernameFromToken(authHeader);
         Optional<User> userOptional = userRepository.findByUsername(username);
         if (userOptional.isEmpty()) {
             throw new RuntimeException("User not found.");
         }
 
-        List<Board> boards = boardRepository.findByUser(userOptional.get());
-
-        if (boards.isEmpty()) {
-            return List.of(createDefaultBoard(userOptional.get()));
-        }
-
-        return boards;
+        User user = userOptional.get();
+        List<Board> boards = boardRepository.findByUser(user);
+        return boards.stream()
+                .map(board -> new BoardDto(board.getId(), board.getTitle(), board.getPosition(), user.getId(), convertToColumnsDto(board.getColumns())))
+                .collect(Collectors.toList());
     }
 
-    public Board createDefaultBoard(User user) {
-
-        Board defaultBoard = new Board();
-        defaultBoard.setTitle("Default Board");
-        defaultBoard.setPosition(1);
-        defaultBoard.setUser(user);
-
-        return boardRepository.save(defaultBoard);
-    }
-
-    public Board createBoard(Board board, String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new RuntimeException("Invalid authorization header");
-        }
-        String token = authHeader.substring(7).trim();
-        String username = jwtService.extractUsername(token);
+    public BoardDto createBoard(Board board, String authHeader) {
+        String username = extractUsernameFromToken(authHeader);
         Optional<User> userOptional = userRepository.findByUsername(username);
         if (userOptional.isEmpty()) {
             throw new RuntimeException("User not found.");
         }
         User user = userOptional.get();
+
         if (board.getTitle() == null || board.getTitle().trim().isEmpty()) {
             throw new IllegalArgumentException("Board name cannot be empty");
         }
@@ -73,25 +66,39 @@ public class BoardService {
                 .orElse(0);
         board.setPosition(maxPosition + 1);
         board.setUser(user);
-        return boardRepository.save(board);
+
+        Board savedBoard = boardRepository.save(board);
+        return new BoardDto(savedBoard.getId(), savedBoard.getTitle(), savedBoard.getPosition(), user.getId(), convertToColumnsDto(savedBoard.getColumns()));
     }
 
-    public Board getBoardByPosition(int position, String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new RuntimeException("Invalid authorization header");
-        }
-        String token = authHeader.substring(7).trim();
-        String username = jwtService.extractUsername(token);
+    public BoardDto getBoardByPosition(int position, String authHeader) {
+        String username = extractUsernameFromToken(authHeader);
         Optional<User> userOptional = userRepository.findByUsername(username);
         if (userOptional.isEmpty()) {
             throw new RuntimeException("User not found.");
         }
         User user = userOptional.get();
+
         Optional<Board> boardOptional = boardRepository.findByUserAndPosition(user, position);
         if (boardOptional.isPresent()) {
-            return boardOptional.get();
+            Board board = boardOptional.get();
+            return new BoardDto(board.getId(), board.getTitle(), board.getPosition(), user.getId(), convertToColumnsDto(board.getColumns()));
         } else {
             throw new RuntimeException("Board with position " + position + " not found for user " + username);
         }
+    }
+
+    private List<MyColumnsDto> convertToColumnsDto(List<MyColumn> columns) {
+        return columns.stream()
+                .map(column -> new MyColumnsDto(column.getId(), column.getTitle(), column.getPlacement(), column.getTitleColor()))
+                .collect(Collectors.toList());
+    }
+
+    public Board createDefaultBoard(User user) {
+        Board defaultBoard = new Board();
+        defaultBoard.setTitle("Default Board");
+        defaultBoard.setPosition(1);
+        defaultBoard.setUser(user);
+        return boardRepository.save(defaultBoard);
     }
 }

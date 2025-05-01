@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.tutorial.springemailtutorial.dto.BoardDto;
 import org.tutorial.springemailtutorial.dto.MyColumnsDto;
 import org.tutorial.springemailtutorial.model.Board;
 import org.tutorial.springemailtutorial.model.MyColumn;
@@ -18,10 +19,11 @@ public class BoardController {
 
     @Autowired
     private BoardService boardService;
+
     @Autowired
     private myColumnsService columnsService;
 
-    @PostMapping("/boards/{boardId}/columns")
+    @PostMapping("/{boardId}/columns")
     public ResponseEntity<MyColumn> createColumn(@PathVariable Long boardId,
                                                  @RequestBody MyColumnsDto columnDto,
                                                  @RequestHeader("Authorization") String authHeader) {
@@ -30,25 +32,23 @@ public class BoardController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Board>> getBoards(@RequestHeader("Authorization") String authHeader) {
-        List<Board> boards = boardService.getBoards(authHeader);
+    public ResponseEntity<List<BoardDto>> getBoards(@RequestHeader("Authorization") String authHeader) {
+        List<BoardDto> boards = boardService.getBoards(authHeader);
         return ResponseEntity.ok(boards);
     }
 
     @PostMapping
-    public ResponseEntity<Board> createBoard(@RequestBody Board board,
-                                             @RequestHeader("Authorization") String authHeader) {
-        Board createdBoard = boardService.createBoard(board, authHeader);
-        System.out.println("createdBoard: " + createdBoard);
+    public ResponseEntity<BoardDto> createBoard(@RequestBody Board board,
+                                                @RequestHeader("Authorization") String authHeader) {
+        BoardDto createdBoard = boardService.createBoard(board, authHeader);
         return new ResponseEntity<>(createdBoard, HttpStatus.CREATED);
     }
 
     @GetMapping("/{position}")
-    public ResponseEntity<Board> getBoardByPosition(@PathVariable int position,
-                                                    @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<BoardDto> getBoardByPosition(@PathVariable int position,
+                                                       @RequestHeader("Authorization") String authHeader) {
         try {
-            System.out.println("position: " + position);
-            Board board = boardService.getBoardByPosition(position, authHeader);
+            BoardDto board = boardService.getBoardByPosition(position, authHeader);
             return ResponseEntity.ok(board);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
