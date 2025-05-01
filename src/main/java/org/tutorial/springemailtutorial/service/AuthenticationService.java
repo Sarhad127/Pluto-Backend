@@ -1,11 +1,13 @@
 package org.tutorial.springemailtutorial.service;
 
-
 import jakarta.mail.MessagingException;
+import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.tutorial.springemailtutorial.customExceptions.DuplicateUserException;
 import org.tutorial.springemailtutorial.dto.LoginUserDto;
 import org.tutorial.springemailtutorial.dto.RegisterUserDto;
 import org.tutorial.springemailtutorial.dto.VerifyUserDto;
@@ -17,46 +19,44 @@ import java.util.Optional;
 import java.util.Random;
 
 @Service
+@AllArgsConstructor
 public class AuthenticationService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
 
-    public AuthenticationService(
-            UserRepository userRepository,
-            AuthenticationManager authenticationManager,
-            PasswordEncoder passwordEncoder,
-            EmailService emailService
-    ) {
-        this.authenticationManager = authenticationManager;
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.emailService = emailService;
-    }
+    public void signup(RegisterUserDto input) {
+        if (userRepository.existsByEmail(input.getEmail())) {
+            throw new DuplicateUserException("Email is already taken.");
+        }
 
-    public User signup(RegisterUserDto input) {
+        if (userRepository.existsByUsername(input.getUsername())) {
+            throw new DuplicateUserException("Username is already taken.");
+        }
         User user = new User(input.getUsername(), input.getEmail(), passwordEncoder.encode(input.getPassword()));
         user.setVerificationCode(generateVerificationCode());
         user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
         user.setEnabled(false);
         sendVerificationEmail(user);
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 
     public User authenticate(LoginUserDto input) {
         User user = userRepository.findByEmail(input.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (!user.isEnabled()) {
-            throw new RuntimeException("Account not verified. Please verify your account.");
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            input.getEmail(),
+                            input.getPassword()
+                    )
+            );
+        } catch (DisabledException ex) {
+            throw new DisabledException("Account not verified");
         }
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        input.getEmail(),
-                        input.getPassword()
-                )
-        );
 
         return user;
     }
@@ -97,29 +97,39 @@ public class AuthenticationService {
         }
     }
 
-    private void sendVerificationEmail(User user) { //TODO: Update with company logo
+    private void sendVerificationEmail(User user) {
         String subject = "Account Verification";
-        String verificationCode = "VERIFICATION CODE " + user.getVerificationCode();
-        String htmlMessage = "<html>"
-                + "<body style=\"font-family: Arial, sans-serif;\">"
-                + "<div style=\"background-color: #f5f5f5; padding: 20px;\">"
-                + "<h2 style=\"color: #333;\">Welcome to our app!</h2>"
-                + "<p style=\"font-size: 16px;\">Please enter the verification code below to continue:</p>"
-                + "<div style=\"background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1);\">"
-                + "<h3 style=\"color: #333;\">Verification Code:</h3>"
-                + "<p style=\"font-size: 18px; font-weight: bold; color: #007bff;\">" + verificationCode + "</p>"
-                + "</div>"
-                + "</div>"
-                + "</body>"
-                + "</html>";
+        String verificationCode = user.getVerificationCode();
+        String htmlMessage = "<!DOCTYPE html>" +
+                "<html>" +
+                "<head>" +
+                "<meta charset='UTF-8'>" +
+                "<meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+                "<title>Email Verification</title>" +
+                "</head>" +
+                "<body style='margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f9fafb;'>" +
+                "<div style='max-width: 600px; margin: 40px auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);'>" +
+                "<div style='text-align: center;'>" +
+                "<h2 style='color: #111827;'>Welcome to Pluto!</h2>" +
+                "<p style='font-size: 16px; color: #4b5563;'>You're almost ready to start managing your tasks like a pro. Enter the verification code below to complete your sign-up:</p>" +
+                "<div style='margin: 30px 0; padding: 20px; background-color: #f3f4f6; border-radius: 8px;'>" +
+                "<span style='font-size: 24px; font-weight: bold; color: #2563eb; letter-spacing: 2px;'>" + verificationCode + "</span>" +
+                "</div>" +
+                "<p style='font-size: 14px; color: #6b7280;'>Didn't sign up for Pluto? No worries — you can safely ignore this message.</p>" +
+                "<p style='font-size: 14px; color: #9ca3af; margin-top: 30px;'>See you soon!<br>The Pluto Team</p>" +
+                "</div>" +
+                "</div>" +
+                "</body>" +
+                "</html>";
+
 
         try {
             emailService.sendVerificationEmail(user.getEmail(), subject, htmlMessage);
         } catch (MessagingException e) {
-            // Handle email sending exception
             e.printStackTrace();
         }
     }
+
     private String generateVerificationCode() {
         Random random = new Random();
         int code = random.nextInt(900000) + 100000;
