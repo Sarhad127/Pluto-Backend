@@ -12,6 +12,7 @@ import java.util.List;
 public class UserDataDto {
 
     private Long userId;
+    private Long boardId;
     private List<MyTaskDto> tasks;
     private List<MyColumnsDto> columns;
 

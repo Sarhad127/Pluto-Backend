@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.tutorial.springemailtutorial.dto.MyTaskDto;
 import org.tutorial.springemailtutorial.model.MyTask;
 import org.tutorial.springemailtutorial.model.User;
-import org.tutorial.springemailtutorial.model.myColumns;
+import org.tutorial.springemailtutorial.model.MyColumn;
 import org.tutorial.springemailtutorial.repository.MyColumnsRepository;
 import org.tutorial.springemailtutorial.repository.TaskRepository;
 import org.tutorial.springemailtutorial.repository.UserRepository;
@@ -47,11 +47,11 @@ public class TaskService {
         if (user.isEmpty()) {
             throw new RuntimeException("User not found.");
         }
-        Optional<myColumns> columnOpt = myColumnsRepository.findById(taskDto.getColumnId());
+        Optional<MyColumn> columnOpt = myColumnsRepository.findById(taskDto.getColumnId());
         if (columnOpt.isEmpty()) {
             throw new RuntimeException("Column not found.");
         }
-        myColumns column = columnOpt.get();
+        MyColumn column = columnOpt.get();
         Optional<Integer> maxPositionOpt = TaskRepository.findMaxPositionByColumnId(column.getId());
         int newPosition = maxPositionOpt.map(pos -> pos + 1).orElse(1);
         MyTask task = new MyTask();
@@ -92,7 +92,7 @@ public class TaskService {
             task.setColor(taskDto.getColor());
         }
         if (taskDto.getColumnId() != null) {
-            Optional<myColumns> columnOpt = myColumnsRepository.findById(taskDto.getColumnId());
+            Optional<MyColumn> columnOpt = myColumnsRepository.findById(taskDto.getColumnId());
             if (columnOpt.isEmpty()) {
                 throw new RuntimeException("Column not found.");
             }
@@ -116,11 +116,11 @@ public class TaskService {
             throw new RuntimeException("Task not found with ID: " + taskId);
         }
         MyTask task = taskOpt.get();
-        Optional<myColumns> newColumnOpt = myColumnsRepository.findById(newColumnId);
+        Optional<MyColumn> newColumnOpt = myColumnsRepository.findById(newColumnId);
         if (newColumnOpt.isEmpty()) {
             throw new RuntimeException("Column not found with ID: " + newColumnId);
         }
-        myColumns newColumn = newColumnOpt.get();
+        MyColumn newColumn = newColumnOpt.get();
         task.setColumn(newColumn);
         Optional<Integer> maxPositionOpt = TaskRepository.findMaxPositionByColumnId(newColumnId);
         int newPosition = maxPositionOpt.map(pos -> pos + 1).orElse(1);
@@ -128,18 +128,18 @@ public class TaskService {
         return TaskRepository.save(task);
     }
 
-    public List<MyTaskDto> getTasksForUser(Long userId) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new RuntimeException("User not found with ID: " + userId);
+    public List<MyTaskDto> getTasksForUser(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("Invalid authorization header");
         }
-
-        List<myColumns> columns = myColumnsRepository.findByUserIdOrderByPlacement(userId);
-
+        String token = authHeader.substring(7).trim();
+        String username = jwtService.extractUsername(token);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        List<MyColumn> columns = myColumnsRepository.findByUserWithTasks(user.getId());
         List<MyTask> tasks = columns.stream()
-                .flatMap(column -> column.getTasks().stream())
+                .flatMap(col -> col.getTasks().stream())
                 .collect(Collectors.toList());
-
         return tasks.stream()
                 .map(task -> new MyTaskDto(
                         task.getId(),
@@ -161,12 +161,10 @@ public class TaskService {
         if (user.isEmpty()) {
             throw new RuntimeException("User not found.");
         }
-
         Optional<MyTask> taskOpt = TaskRepository.findById(taskId);
         if (taskOpt.isEmpty()) {
             throw new RuntimeException("Task not found with ID: " + taskId);
         }
-
         MyTask task = taskOpt.get();
         TaskRepository.delete(task);
     }

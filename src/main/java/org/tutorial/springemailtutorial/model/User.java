@@ -1,5 +1,6 @@
 package org.tutorial.springemailtutorial.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -38,6 +39,11 @@ public class User implements UserDetails {
     private boolean enabled;
 
     private String provider;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    @ToString.Exclude
+    private List<Board> boards;
 
     public User(String username, String email, String password) {
         this.username = username;

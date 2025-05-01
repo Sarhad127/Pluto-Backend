@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.tutorial.springemailtutorial.dto.MyTaskDto;
 import org.tutorial.springemailtutorial.model.MyTask;
-import org.tutorial.springemailtutorial.model.myColumns;
+import org.tutorial.springemailtutorial.model.MyColumn;
 import org.tutorial.springemailtutorial.repository.MyColumnsRepository;
 import org.tutorial.springemailtutorial.repository.TaskRepository;
 import org.tutorial.springemailtutorial.service.TaskService;
@@ -54,7 +54,7 @@ public class TaskController {
                     .orElseThrow(() -> new RuntimeException("Task not found: " + dto.getId()));
             task.setPosition(dto.getPosition());
             if (!task.getColumn().getId().equals(dto.getColumnId())) {
-                myColumns newColumn = myColumnsRepository.findById(dto.getColumnId())
+                MyColumn newColumn = myColumnsRepository.findById(dto.getColumnId())
                         .orElseThrow(() -> new RuntimeException("Column not found"));
                 task.setColumn(newColumn);
             }

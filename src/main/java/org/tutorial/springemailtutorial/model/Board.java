@@ -6,23 +6,28 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MyTask {
+public class Board {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String text;
-
-    private String color;
+    private String title;
 
     private int position;
 
     @ManyToOne
-    @JoinColumn(name = "column_id")
+    @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
-    private MyColumn column;
+    private User user;
+
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
+    private List<MyColumn> columns;
 }
