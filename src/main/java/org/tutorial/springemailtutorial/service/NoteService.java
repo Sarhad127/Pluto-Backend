@@ -57,19 +57,19 @@ public class NoteService {
     public Note updateNote(Long id, Note note, String authHeader) {
         String username = extractUsernameFromToken(authHeader);
         Optional<User> userOptional = userRepository.findByUsername(username);
+
         if (userOptional.isEmpty()) {
             throw new RuntimeException("User not found.");
         }
-
         Optional<Note> existingNote = noteRepository.findById(id);
         if (existingNote.isEmpty()) {
             throw new RuntimeException("Note not found.");
         }
-
         Note updatedNote = existingNote.get();
-        if (note.getTitle() != null && !note.getTitle().trim().isEmpty()) {
-            updatedNote.setTitle(note.getTitle());
-        }
+        updatedNote.setTitle(note.getTitle());
+        updatedNote.setText(note.getText());
+        updatedNote.setColor(note.getColor());
+        updatedNote.setDate(note.getDate());
         return noteRepository.save(updatedNote);
     }
 
