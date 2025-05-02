@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.tutorial.springemailtutorial.dto.BoardDto;
 import org.tutorial.springemailtutorial.dto.MyColumnsDto;
+import org.tutorial.springemailtutorial.dto.MyTaskDto;
 import org.tutorial.springemailtutorial.model.Board;
 import org.tutorial.springemailtutorial.model.MyColumn;
 import org.tutorial.springemailtutorial.model.User;
@@ -27,7 +28,10 @@ public class BoardService {
     @Autowired
     private JwtService jwtService;
 
-    private String extractUsernameFromToken(String authHeader) {
+    @Autowired
+    private TaskService taskService;
+
+    public String extractUsernameFromToken(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new RuntimeException("Invalid authorization header");
         }
@@ -93,7 +97,16 @@ public class BoardService {
             columns = new ArrayList<>();
         }
         return columns.stream()
-                .map(column -> new MyColumnsDto(column.getId(), column.getTitle(), column.getPlacement(), column.getTitleColor()))
+                .map(column -> {
+                    List<MyTaskDto> tasks = taskService.getTasksForColumn(column.getId());
+                    return new MyColumnsDto(
+                            column.getId(),
+                            column.getTitle(),
+                            column.getPlacement(),
+                            column.getTitleColor(),
+                            tasks
+                    );
+                })
                 .collect(Collectors.toList());
     }
 

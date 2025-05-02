@@ -49,6 +49,8 @@ public class BoardController {
                                                        @RequestHeader("Authorization") String authHeader) {
         try {
             BoardDto board = boardService.getBoardByPosition(position, authHeader);
+            List<MyColumnsDto> columns = columnsService.getColumnsForBoard(board.getId());
+            board.setColumns(columns);
             return ResponseEntity.ok(board);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

@@ -168,4 +168,17 @@ public class TaskService {
         MyTask task = taskOpt.get();
         TaskRepository.delete(task);
     }
+
+    public List<MyTaskDto> getTasksForColumn(Long columnId) {
+        List<MyTask> tasks = TaskRepository.findByColumnId(columnId);
+        return tasks.stream()
+                .map(task -> new MyTaskDto(
+                        task.getId(),
+                        task.getText(),
+                        task.getColor(),
+                        task.getColumn().getId(),
+                        task.getPosition()
+                ))
+                .collect(Collectors.toList());
+    }
 }

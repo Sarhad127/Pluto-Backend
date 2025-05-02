@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.tutorial.springemailtutorial.dto.MyColumnsDto;
+import org.tutorial.springemailtutorial.dto.MyTaskDto;
 import org.tutorial.springemailtutorial.model.Board;
 import org.tutorial.springemailtutorial.model.User;
 import org.tutorial.springemailtutorial.model.MyColumn;
@@ -25,16 +26,19 @@ public class myColumnsService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final BoardRepository boardRepository;
+    private final TaskService taskService;
 
     @Autowired
     public myColumnsService(MyColumnsRepository myColumnsRepository,
                             UserRepository userRepository,
                             JwtService jwtService,
-                            BoardRepository boardRepository) {
+                            BoardRepository boardRepository,
+                            TaskService taskService) {
         this.myColumnsRepository = myColumnsRepository;
         this.userRepository = userRepository;
         this.jwtService = jwtService;
         this.boardRepository = boardRepository;
+        this.taskService = taskService;
     }
 
     public MyColumn saveColumn(MyColumnsDto columnDto, Long boardId, String authHeader) {
@@ -166,11 +170,16 @@ public class myColumnsService {
     public List<MyColumnsDto> getColumnsForBoard(Long boardId) {
         List<MyColumn> columns = myColumnsRepository.findByBoardIdOrderByPlacement(boardId);
         return columns.stream()
-                .map(column -> new MyColumnsDto(
-                        column.getId(),
-                        column.getTitle(),
-                        column.getPlacement(),
-                        column.getTitleColor()))
+                .map(column -> {
+                    List<MyTaskDto> tasks = taskService.getTasksForColumn(column.getId());
+                    return new MyColumnsDto(
+                            column.getId(),
+                            column.getTitle(),
+                            column.getPlacement(),
+                            column.getTitleColor(),
+                            tasks
+                    );
+                })
                 .collect(Collectors.toList());
     }
 }
