@@ -116,7 +116,7 @@ public class BoardService {
 
     public Board createDefaultBoard(User user) {
         Board defaultBoard = new Board();
-        defaultBoard.setTitle("Default Board");
+        defaultBoard.setTitle("Board 1");
         defaultBoard.setPosition(1);
         defaultBoard.setUser(user);
         return boardRepository.save(defaultBoard);

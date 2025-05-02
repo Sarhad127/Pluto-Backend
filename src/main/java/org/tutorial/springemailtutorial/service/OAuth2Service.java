@@ -40,24 +40,21 @@ public class OAuth2Service {
                 user = new User();
                 user.setEnabled(true);
                 user.setProvider(provider);
+                user.setUsername(username);
+                user.setEmail(email);
                 user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
                 logger.info("Creating new user for {}", email);
             } else {
                 user = existingUser.get();
-                logger.info("User already exists, updating existing user: {}", email);
+                logger.info("User already exists: {}", email);
             }
 
-            user.setUsername(username);
-            user.setEmail(email);
-            user.setProvider(provider);
-
             userRepository.save(user);
-            logger.info("Successfully saved {} user: {}", provider, user);
 
             List<Board> existingBoards = boardRepository.findByUser(user);
             if (existingBoards.isEmpty()) {
                 Board defaultBoard = new Board();
-                defaultBoard.setTitle("Default Board");
+                defaultBoard.setTitle("Board 1");
                 defaultBoard.setPosition(1);
                 defaultBoard.setUser(user);
                 boardRepository.save(defaultBoard);
