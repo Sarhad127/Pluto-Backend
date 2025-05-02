@@ -65,8 +65,8 @@ public class BoardService {
             throw new IllegalArgumentException("Board name cannot be empty");
         }
         List<Board> userBoards = boardRepository.findByUser(user);
-        if (userBoards.size() >= 8) {
-            throw new IllegalStateException("You can only have a maximum of 8 boards.");
+        if (userBoards.size() >= 5) {
+            throw new IllegalStateException("You can only have a maximum of 5 boards.");
         }
         int maxPosition = userBoards.stream()
                 .mapToInt(Board::getPosition)
