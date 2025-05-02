@@ -156,13 +156,16 @@ public class myColumnsService {
         MyColumn column = myColumnsRepository.findById(columnId)
                 .orElseThrow(() -> new EntityNotFoundException("Column not found"));
         if (!column.getBoard().getId().equals(boardId)) {
-            throw new IllegalArgumentException("Column does not belong to specified board");
+            throw new IllegalArgumentException("Column does not belong to board");
         }
-        myColumnsRepository.delete(column);
+        if (column.getTasks() != null) {
+            column.getTasks().clear();
+        }
+        board.getColumns().remove(column);
+        boardRepository.save(board);
         List<MyColumn> remainingColumns = myColumnsRepository.findByBoardIdOrderByPlacement(boardId);
         for (int i = 0; i < remainingColumns.size(); i++) {
-            MyColumn col = remainingColumns.get(i);
-            col.setPlacement(i + 1);
+            remainingColumns.get(i).setPlacement(i + 1);
         }
         myColumnsRepository.saveAll(remainingColumns);
     }
