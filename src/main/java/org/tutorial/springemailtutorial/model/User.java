@@ -45,6 +45,11 @@ public class User implements UserDetails {
     @ToString.Exclude
     private List<Board> boards;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "user-notes")
+    @ToString.Exclude
+    private List<Note> notes;
+
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
