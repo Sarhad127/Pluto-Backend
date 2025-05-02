@@ -51,19 +51,19 @@ public class myColumnsService {
         if (user.isEmpty()) {
             throw new RuntimeException("User not found.");
         }
-
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new RuntimeException("Board not found"));
 
         List<MyColumn> boardColumns = myColumnsRepository.findByBoardIdOrderByPlacement(boardId);
+        if (boardColumns.size() >= 8) {
+            throw new RuntimeException("Maximum number of columns (8) reached for this board.");
+        }
         int placement = boardColumns.size() + 1;
-
         MyColumn column = new MyColumn();
         column.setTitle(columnDto.getTitle());
         column.setTitleColor(columnDto.getTitleColor());
         column.setBoard(board);
         column.setPlacement(placement);
-
         return myColumnsRepository.save(column);
     }
 
