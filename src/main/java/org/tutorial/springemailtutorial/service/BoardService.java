@@ -1,5 +1,6 @@
 package org.tutorial.springemailtutorial.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.tutorial.springemailtutorial.dto.BoardDto;
@@ -119,5 +120,42 @@ public class BoardService {
         defaultBoard.setPosition(1);
         defaultBoard.setUser(user);
         return boardRepository.save(defaultBoard);
+    }
+
+    public BoardDto updateBoardTitle(Long boardId, String newTitle, String authHeader) {
+        String username = extractUsernameFromToken(authHeader);
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found."));
+        Board board = boardRepository.findById(boardId).orElseThrow(() -> new RuntimeException("Board not found."));
+
+        if (!board.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("User is not owned by this board.");
+        }
+        if (newTitle == null || newTitle.trim().isEmpty()) {
+            throw new IllegalArgumentException("Board title cannot be empty");
+        }
+        board.setTitle(newTitle);
+        Board updatedBoard = boardRepository.save(board);
+        return new BoardDto(updatedBoard.getId(), updatedBoard.getTitle(), updatedBoard.getPosition(), user.getId(), convertToColumnsDto(updatedBoard.getColumns()));
+    }
+
+    @Transactional
+    public void deleteBoard(Long boardId, String authHeader) {
+        String username = extractUsernameFromToken(authHeader);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found."));
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new RuntimeException("Board not found."));
+        if (!board.getUser().getId().equals(user.getId())) {
+            throw new SecurityException("User not authorized to delete this board.");
+        }
+        if (board.getColumns() != null) {
+            board.getColumns().forEach(column -> {
+                if (column.getTasks() != null) {
+                    column.getTasks().clear();
+                }
+            });
+            board.getColumns().clear();
+        }
+        boardRepository.delete(board);
     }
 }

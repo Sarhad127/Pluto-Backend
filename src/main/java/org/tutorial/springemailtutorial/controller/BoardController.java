@@ -12,6 +12,7 @@ import org.tutorial.springemailtutorial.service.BoardService;
 import org.tutorial.springemailtutorial.service.myColumnsService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/boards")
@@ -55,5 +56,21 @@ public class BoardController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @PutMapping("/{boardId}/title")
+    public ResponseEntity<BoardDto> updateBoardTitle(@PathVariable Long boardId,
+                                                     @RequestBody Map<String, String> requestBody,
+                                                     @RequestHeader("Authorization") String authHeader) {
+        String newTitle = requestBody.get("title");
+        BoardDto updatedBoard = boardService.updateBoardTitle(boardId, newTitle, authHeader);
+        return ResponseEntity.ok(updatedBoard);
+    }
+
+    @DeleteMapping("/{boardId}")
+    public ResponseEntity<Void> deleteBoard(@PathVariable Long boardId,
+                                            @RequestHeader("Authorization") String authHeader) {
+        boardService.deleteBoard(boardId, authHeader);
+        return ResponseEntity.noContent().build();
     }
 }
