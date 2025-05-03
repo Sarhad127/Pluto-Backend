@@ -4,10 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.tutorial.springemailtutorial.dto.PasswordChangeRequest;
 import org.tutorial.springemailtutorial.model.User;
 import org.tutorial.springemailtutorial.repository.UserRepository;
@@ -61,5 +58,20 @@ public class profileController {
         String username = authentication.getName();
         userService.changePassword(username, request.getCurrentPassword(), request.getNewPassword());
         return ResponseEntity.ok().body(Map.of("message", "Password updated successfully."));
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String authHeader) {
+        String username = authHeader != null ? authHeader.substring(7).trim() : null;
+        logger.info("Received request to delete user: {}", username);
+
+        try {
+            userService.deleteUser(authHeader);
+            logger.info("User successfully deleted: {}", username);
+            return ResponseEntity.ok().body(Map.of("message", "User deleted successfully."));
+        } catch (Exception e) {
+            logger.error("Error deleting user: {}", username, e);
+            return ResponseEntity.status(500).body(Map.of("message", "Failed to delete user."));
+        }
     }
 }

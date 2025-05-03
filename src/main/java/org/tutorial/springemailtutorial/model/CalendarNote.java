@@ -1,5 +1,6 @@
 package org.tutorial.springemailtutorial.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class CalendarNote {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonBackReference(value = "user-calender")
     private User user;
 
     public CalendarNote(LocalDate date, String content, User user) {

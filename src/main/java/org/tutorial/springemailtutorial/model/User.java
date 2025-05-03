@@ -50,6 +50,11 @@ public class User implements UserDetails {
     @ToString.Exclude
     private List<Note> notes;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "user-calender")
+    @ToString.Exclude
+    private List<CalendarNote> calendarNotes;
+
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
