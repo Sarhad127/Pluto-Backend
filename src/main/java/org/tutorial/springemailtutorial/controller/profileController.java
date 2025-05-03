@@ -60,17 +60,31 @@ public class profileController {
         return ResponseEntity.ok().body(Map.of("message", "Password updated successfully."));
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String authHeader) {
-        String username = authHeader != null ? authHeader.substring(7).trim() : null;
-        logger.info("Received request to delete user: {}", username);
+    @PostMapping("/verify-password")
+    public ResponseEntity<?> verifyPassword(@RequestBody Map<String, String> request,
+                                            Authentication authentication) {
+        String username = authentication.getName();
+        String password = request.get("password");
 
         try {
-            userService.deleteUser(authHeader);
-            logger.info("User successfully deleted: {}", username);
-            return ResponseEntity.ok().body(Map.of("message", "User deleted successfully."));
+            boolean isValid = userService.verifyPassword(username, password);
+            return ResponseEntity.ok().body(Map.of("isValid", isValid));
         } catch (Exception e) {
-            logger.error("Error deleting user: {}", username, e);
+            return ResponseEntity.status(401).body(Map.of("message", "Password verification failed"));
+        }
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String authHeader,
+                                        @RequestBody Map<String, String> request) {
+        String password = request.get("password");
+
+        try {
+            userService.deleteUser(authHeader, password);
+            return ResponseEntity.ok().body(Map.of("message", "User deleted successfully."));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401).body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("message", "Failed to delete user."));
         }
     }

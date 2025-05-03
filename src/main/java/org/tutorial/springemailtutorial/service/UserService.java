@@ -11,8 +11,6 @@ import org.tutorial.springemailtutorial.repository.CalendarNoteRepository;
 import org.tutorial.springemailtutorial.repository.NoteRepository;
 import org.tutorial.springemailtutorial.repository.UserRepository;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -23,6 +21,12 @@ public class UserService {
     private final CalendarNoteRepository calendarNoteRepository;
     private final NoteRepository noteRepository;
     private final JwtService jwtService;
+
+    public boolean verifyPassword(String username, String password) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return passwordEncoder.matches(password, user.getPassword());
+    }
 
     public void updateUsername(String currentEmail, String newUsername) {
         User user = userRepository.findByUsername(currentEmail)
@@ -48,20 +52,20 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(String authHeader) {
+    public void deleteUser(String authHeader, String password) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new RuntimeException("Invalid authorization header");
         }
         String token = authHeader.substring(7).trim();
         String username = jwtService.extractUsername(token);
-        Optional<User> user = userRepository.findByUsername(username);
-        if (user.isEmpty()) {
-            throw new UsernameNotFoundException("User not found");
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("Incorrect password");
         }
-        User existingUser = user.get();
-        boardRepository.deleteAll(existingUser.getBoards());
-        calendarNoteRepository.deleteAll(existingUser.getCalendarNotes());
-        noteRepository.deleteAll(existingUser.getNotes());
-        userRepository.delete(existingUser);
+        boardRepository.deleteAll(user.getBoards());
+        calendarNoteRepository.deleteAll(user.getCalendarNotes());
+        noteRepository.deleteAll(user.getNotes());
+        userRepository.delete(user);
     }
 }
