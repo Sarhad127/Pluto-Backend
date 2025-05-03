@@ -6,8 +6,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.tutorial.springemailtutorial.dto.PasswordChangeRequest;
+import org.tutorial.springemailtutorial.dto.VerifyUserByUsernameDto;
 import org.tutorial.springemailtutorial.model.User;
 import org.tutorial.springemailtutorial.repository.UserRepository;
+import org.tutorial.springemailtutorial.service.DeletionService;
 import org.tutorial.springemailtutorial.service.JwtService;
 import org.tutorial.springemailtutorial.service.UserService;
 
@@ -20,14 +22,19 @@ public class profileController {
     private final UserService userService;
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final DeletionService deletionService;
 
-    private static final Logger logger = LoggerFactory.getLogger(profileController.class);
-
-    public profileController(UserService userService, UserRepository userRepository, JwtService jwtService) {
+    public profileController(UserService userService,
+                             UserRepository userRepository,
+                             JwtService jwtService,
+                             DeletionService deletionService) {
         this.userService = userService;
         this.userRepository = userRepository;
         this.jwtService = jwtService;
+        this.deletionService = deletionService;
     }
+
+    private static final Logger logger = LoggerFactory.getLogger(profileController.class);
 
     @PutMapping("/update-username")
     public ResponseEntity<?> updateUsername(@RequestBody Map<String, String> request, Authentication authentication) {
@@ -87,5 +94,16 @@ public class profileController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("message", "Failed to delete user."));
         }
+    }
+
+    @PostMapping("/request-account-deletion")
+    public ResponseEntity<String> requestAccountDeletion(@RequestParam String username) {
+        deletionService.initiateDeletion(username);
+        return ResponseEntity.ok("Verification code sent to email.");
+    }
+    @PostMapping("/confirm-account-deletion")
+    public ResponseEntity<String> confirmAccountDeletion(@RequestBody VerifyUserByUsernameDto input) {
+        deletionService.confirmAndDeleteUser(input);
+        return ResponseEntity.ok("Account deleted successfully.");
     }
 }
