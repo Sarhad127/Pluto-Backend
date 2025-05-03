@@ -48,9 +48,16 @@ public class BoardService {
         }
 
         User user = userOptional.get();
-        List<Board> boards = boardRepository.findByUser(user);
+        List<Board> boards = boardRepository.findByUsersContaining(user);
         return boards.stream()
-                .map(board -> new BoardDto(board.getId(), board.getTitle(), board.getPosition(), user.getId(), convertToColumnsDto(board.getColumns())))
+                .map(board -> new BoardDto(
+                        board.getId(),
+                        board.getTitle(),
+                        board.getPosition(),
+                        board.getId(),
+                        board.getUsers().stream().map(User::getId).collect(Collectors.toList()),
+                        convertToColumnsDto(board.getColumns())
+                ))
                 .collect(Collectors.toList());
     }
 
@@ -61,11 +68,11 @@ public class BoardService {
             throw new RuntimeException("User not found.");
         }
         User user = userOptional.get();
-
         if (board.getTitle() == null || board.getTitle().trim().isEmpty()) {
             throw new IllegalArgumentException("Board name cannot be empty");
         }
-        List<Board> userBoards = boardRepository.findByUser(user);
+        board.getUsers().add(user);
+        List<Board> userBoards = boardRepository.findByUsersContaining(user);
         if (userBoards.size() >= 5) {
             throw new IllegalStateException("You can only have a maximum of 5 boards.");
         }
@@ -74,9 +81,15 @@ public class BoardService {
                 .max()
                 .orElse(0);
         board.setPosition(maxPosition + 1);
-        board.setUser(user);
         Board savedBoard = boardRepository.save(board);
-        return new BoardDto(savedBoard.getId(), savedBoard.getTitle(), savedBoard.getPosition(), user.getId(), convertToColumnsDto(savedBoard.getColumns()));
+        return new BoardDto(
+                savedBoard.getId(),
+                savedBoard.getTitle(),
+                savedBoard.getPosition(),
+                savedBoard.getId(),
+                savedBoard.getUsers().stream().map(User::getId).collect(Collectors.toList()),
+                convertToColumnsDto(savedBoard.getColumns())
+        );
     }
 
     public BoardDto getBoardByPosition(int position, String authHeader) {
@@ -87,10 +100,17 @@ public class BoardService {
         }
         User user = userOptional.get();
 
-        Optional<Board> boardOptional = boardRepository.findByUserAndPosition(user, position);
+        Optional<Board> boardOptional = boardRepository.findByUsersContainingAndPosition(user, position);
         if (boardOptional.isPresent()) {
             Board board = boardOptional.get();
-            return new BoardDto(board.getId(), board.getTitle(), board.getPosition(), user.getId(), convertToColumnsDto(board.getColumns()));
+            return new BoardDto(
+                    board.getId(),
+                    board.getTitle(),
+                    board.getPosition(),
+                    board.getId(),
+                    board.getUsers().stream().map(User::getId).collect(Collectors.toList()),
+                    convertToColumnsDto(board.getColumns())
+            );
         } else {
             throw new RuntimeException("Board with position " + position + " not found for user " + username);
         }
@@ -118,7 +138,7 @@ public class BoardService {
         Board defaultBoard = new Board();
         defaultBoard.setTitle("Board 1");
         defaultBoard.setPosition(1);
-        defaultBoard.setUser(user);
+        defaultBoard.getUsers().add(user);
         return boardRepository.save(defaultBoard);
     }
 
@@ -127,15 +147,22 @@ public class BoardService {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found."));
         Board board = boardRepository.findById(boardId).orElseThrow(() -> new RuntimeException("Board not found."));
 
-        if (!board.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("User is not owned by this board.");
+        if (!board.getUsers().contains(user)) {
+            throw new RuntimeException("User is not authorized to modify this board.");
         }
         if (newTitle == null || newTitle.trim().isEmpty()) {
             throw new IllegalArgumentException("Board title cannot be empty");
         }
         board.setTitle(newTitle);
         Board updatedBoard = boardRepository.save(board);
-        return new BoardDto(updatedBoard.getId(), updatedBoard.getTitle(), updatedBoard.getPosition(), user.getId(), convertToColumnsDto(updatedBoard.getColumns()));
+        return new BoardDto(
+                updatedBoard.getId(),
+                updatedBoard.getTitle(),
+                updatedBoard.getPosition(),
+                updatedBoard.getId(),
+                updatedBoard.getUsers().stream().map(User::getId).collect(Collectors.toList()),
+                convertToColumnsDto(updatedBoard.getColumns())
+        );
     }
 
     @Transactional
@@ -145,8 +172,8 @@ public class BoardService {
                 .orElseThrow(() -> new RuntimeException("User not found."));
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new RuntimeException("Board not found."));
-        if (!board.getUser().getId().equals(user.getId())) {
-            throw new SecurityException("User not authorized to delete this board.");
+        if (!board.getUsers().contains(user)) {
+            throw new RuntimeException("User is not authorized to modify this board.");
         }
         if (board.getColumns() != null) {
             board.getColumns().forEach(column -> {

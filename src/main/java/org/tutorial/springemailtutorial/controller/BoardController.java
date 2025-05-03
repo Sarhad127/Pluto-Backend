@@ -8,11 +8,14 @@ import org.tutorial.springemailtutorial.dto.BoardDto;
 import org.tutorial.springemailtutorial.dto.MyColumnsDto;
 import org.tutorial.springemailtutorial.model.Board;
 import org.tutorial.springemailtutorial.model.MyColumn;
+import org.tutorial.springemailtutorial.model.User;
+import org.tutorial.springemailtutorial.repository.UserRepository;
 import org.tutorial.springemailtutorial.service.BoardService;
 import org.tutorial.springemailtutorial.service.myColumnsService;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/boards")
@@ -23,6 +26,9 @@ public class BoardController {
 
     @Autowired
     private myColumnsService columnsService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @PostMapping("/{boardId}/columns")
     public ResponseEntity<MyColumn> createColumn(@PathVariable Long boardId,
@@ -41,6 +47,13 @@ public class BoardController {
     @PostMapping
     public ResponseEntity<BoardDto> createBoard(@RequestBody Board board,
                                                 @RequestHeader("Authorization") String authHeader) {
+        String username = boardService.extractUsernameFromToken(authHeader);
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+        User user = userOptional.get();
+        board.getUsers().add(user);
         BoardDto createdBoard = boardService.createBoard(board, authHeader);
         return new ResponseEntity<>(createdBoard, HttpStatus.CREATED);
     }

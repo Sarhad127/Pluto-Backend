@@ -8,6 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
-    List<Board> findByUser(User user);
-    Optional<Board> findByUserAndPosition(User user, int position);
+    List<Board> findByUsersContaining(User user);
+    Optional<Board> findByUsersContainingAndPosition(User user, int position);
 }

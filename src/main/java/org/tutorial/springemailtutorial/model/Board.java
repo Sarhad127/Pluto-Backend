@@ -1,13 +1,15 @@
 package org.tutorial.springemailtutorial.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(
@@ -27,13 +29,15 @@ public class Board {
 
     private int position;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference(value = "user-boards")
-    private User user;
+    @ManyToMany
+    @JoinTable(
+            name = "user_board",
+            joinColumns = @JoinColumn(name = "board_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> users = new HashSet<>();
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference(value = "board-columns")
     private List<MyColumn> columns;
-
 }

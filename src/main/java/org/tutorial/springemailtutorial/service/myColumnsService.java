@@ -79,7 +79,7 @@ public class myColumnsService {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new EntityNotFoundException("Board not found"));
 
-        if (!board.getUser().getId().equals(user.getId())) {
+        if (!board.getUsers().contains(user)) {
             throw new SecurityException("User not authorized to modify this board");
         }
         List<MyColumn> columns = myColumnsRepository.findByBoardUserIdAndBoardIdOrderByPlacement(user.getId(), boardId);
@@ -115,7 +115,7 @@ public class myColumnsService {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new EntityNotFoundException("Board not found"));
 
-        if (!board.getUser().getId().equals(user.getId())) {
+        if (!board.getUsers().contains(user)) {
             throw new SecurityException("User not authorized to modify this board");
         }
         MyColumn column = myColumnsRepository.findById(columnId)
@@ -149,7 +149,7 @@ public class myColumnsService {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new EntityNotFoundException("Board not found"));
 
-        if (!board.getUser().getId().equals(user.getId())) {
+        if (!board.getUsers().contains(user)) {
             throw new SecurityException("User not authorized to modify this board");
         }
         MyColumn column = myColumnsRepository.findById(columnId)

@@ -51,7 +51,7 @@ public class UserDataController {
         User user = UserRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
         Long userId = user.getId();
-        List<Board> boards = boardRepository.findByUser(user);
+        List<Board> boards = boardRepository.findByUsersContaining(user);
         Long boardId = null;
         int boardPosition = 1;
         List<MyColumnsDto> columns = new ArrayList<>();

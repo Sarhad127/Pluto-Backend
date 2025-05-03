@@ -11,10 +11,7 @@ import org.tutorial.springemailtutorial.model.User;
 import org.tutorial.springemailtutorial.repository.BoardRepository;
 import org.tutorial.springemailtutorial.repository.UserRepository;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -51,12 +48,13 @@ public class OAuth2Service {
 
             userRepository.save(user);
 
-            List<Board> existingBoards = boardRepository.findByUser(user);
+            List<Board> existingBoards = boardRepository.findByUsersContaining(user);
             if (existingBoards.isEmpty()) {
                 Board defaultBoard = new Board();
                 defaultBoard.setTitle("Board 1");
                 defaultBoard.setPosition(1);
-                defaultBoard.setUser(user);
+                defaultBoard.setUsers(new HashSet<>());
+                defaultBoard.getUsers().add(user);
                 boardRepository.save(defaultBoard);
                 logger.info("Created default board for user: {} with ID: {}", user.getEmail(), defaultBoard.getId());
             }

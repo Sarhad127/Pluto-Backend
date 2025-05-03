@@ -3,7 +3,6 @@ package org.tutorial.springemailtutorial.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.util.List;
 
 @Data
@@ -14,6 +13,6 @@ public class BoardDto {
     private String title;
     private int position;
     private Long userId;
+    private List<Long> userIds;
     private List<MyColumnsDto> columns;
-
 }
