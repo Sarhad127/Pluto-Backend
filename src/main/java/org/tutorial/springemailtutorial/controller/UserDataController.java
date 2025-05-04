@@ -18,6 +18,7 @@ import org.tutorial.springemailtutorial.service.myColumnsService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -82,5 +83,37 @@ public class UserDataController {
         userDataDto.setTasks(tasks);
         userDataDto.setBoards(boardDtos);
         return ResponseEntity.ok(userDataDto);
+    }
+
+    @GetMapping("/boards/{boardId}/users")
+    public ResponseEntity<?> getUserOnBoard(@RequestHeader("Authorization") String authHeader,
+                                            @PathVariable("boardId") Long boardId) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid authorization token");
+        }
+        try {
+            String token = authHeader.substring(7).trim();
+            String username = jwtService.extractUsername(token);
+            User requestingUser = UserRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+            Board board = boardRepository.findById(boardId)
+                    .orElseThrow(() -> new RuntimeException("Board not found with id: " + boardId));
+            if (!board.getUsers().contains(requestingUser)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User doesn't have access to this board");
+            }
+            Set<User> users = board.getUsers();
+            if (users.size() <= 1) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Board has one or no other users");
+            }
+            List<String> otherUsernames = users.stream()
+                    .filter(user -> !user.getId().equals(requestingUser.getId()))
+                    .map(User::getUsername)
+                    .collect(Collectors.toList());
+            System.out.println(otherUsernames);
+            return ResponseEntity.ok(otherUsernames);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing request");
+        }
     }
 }
