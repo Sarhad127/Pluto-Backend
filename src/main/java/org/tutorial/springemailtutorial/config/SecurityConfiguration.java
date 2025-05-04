@@ -47,7 +47,8 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**", "/users/**", "/oauth2/**",
-                                "/login/**","/tasks/**", "/api/**", "/user/**", "/boards/**").permitAll()
+                                "/login/**","/tasks/**", "/api/**", "/user/**", "/boards/**"
+                        , "/accept-invitation/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2

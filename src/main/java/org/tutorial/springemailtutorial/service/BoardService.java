@@ -10,6 +10,7 @@ import org.tutorial.springemailtutorial.model.Board;
 import org.tutorial.springemailtutorial.model.MyColumn;
 import org.tutorial.springemailtutorial.model.User;
 import org.tutorial.springemailtutorial.repository.BoardRepository;
+import org.tutorial.springemailtutorial.repository.InvitationRepository;
 import org.tutorial.springemailtutorial.repository.UserRepository;
 
 import java.util.ArrayList;
@@ -31,6 +32,9 @@ public class BoardService {
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private InvitationRepository InvitationRepository;
 
     public String extractUsernameFromToken(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -175,6 +179,7 @@ public class BoardService {
         if (!board.getUsers().contains(user)) {
             throw new RuntimeException("User is not authorized to modify this board.");
         }
+        InvitationRepository.deleteByBoard(board);
         if (board.getColumns() != null) {
             board.getColumns().forEach(column -> {
                 if (column.getTasks() != null) {

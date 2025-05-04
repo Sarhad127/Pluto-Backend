@@ -22,9 +22,13 @@ public class InvitationController {
         return ResponseEntity.ok("Invitation sent successfully!");
     }
 
-    @GetMapping("/accept")
-    public ResponseEntity<String> acceptInvitation(@RequestParam Long invitationId) {
-        invitationService.acceptInvitation(invitationId);
-        return ResponseEntity.ok("Invitation accepted successfully!");
+    @PostMapping("/accept")
+    public ResponseEntity<String> acceptInvitation(
+            @RequestParam Long boardId,
+            Authentication authentication
+    ) {
+        User user = (User) authentication.getPrincipal();
+        invitationService.acceptInvitation(boardId, user);
+        return ResponseEntity.ok("Invitation accepted successfully");
     }
 }
