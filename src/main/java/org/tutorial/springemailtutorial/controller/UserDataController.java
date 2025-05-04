@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.tutorial.springemailtutorial.dto.BoardDto;
 import org.tutorial.springemailtutorial.dto.MyColumnsDto;
 import org.tutorial.springemailtutorial.dto.MyTaskDto;
 import org.tutorial.springemailtutorial.dto.UserDataDto;
@@ -17,6 +18,7 @@ import org.tutorial.springemailtutorial.service.myColumnsService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -52,22 +54,33 @@ public class UserDataController {
                 .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
         Long userId = user.getId();
         List<Board> boards = boardRepository.findByUsersContaining(user);
+        List<BoardDto> boardDtos = boards.stream().map(board -> {
+            BoardDto dto = new BoardDto();
+            dto.setId(board.getId());
+            dto.setTitle(board.getTitle());
+            dto.setPosition(board.getPosition());
+            dto.setUserId(userId);
+            dto.setUserIds(board.getUsers().stream().map(User::getId).collect(Collectors.toList()));
+            dto.setColumns(columnsService.getColumnsForBoard(board.getId()));
+            return dto;
+        }).collect(Collectors.toList());
         Long boardId = null;
         int boardPosition = 1;
-        List<MyColumnsDto> columns = new ArrayList<>();
+        List<MyColumnsDto> selectedBoardColumns = new ArrayList<>();
         if (!boards.isEmpty()) {
-            Board board = boards.get(0);
-            boardId = board.getId();
-            boardPosition = board.getPosition();
-            columns = columnsService.getColumnsForBoard(boardId);
+            Board firstBoard = boards.get(0);
+            boardId = firstBoard.getId();
+            boardPosition = firstBoard.getPosition();
+            selectedBoardColumns = columnsService.getColumnsForBoard(boardId);
         }
         List<MyTaskDto> tasks = taskService.getTasksForUser(authHeader);
         UserDataDto userDataDto = new UserDataDto();
         userDataDto.setUserId(userId);
         userDataDto.setBoardId(boardId);
         userDataDto.setBoardPosition(boardPosition);
-        userDataDto.setColumns(columns);
+        userDataDto.setColumns(selectedBoardColumns);
         userDataDto.setTasks(tasks);
+        userDataDto.setBoards(boardDtos);
         return ResponseEntity.ok(userDataDto);
     }
 }

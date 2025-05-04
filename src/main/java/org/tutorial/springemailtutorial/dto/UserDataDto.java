@@ -16,5 +16,5 @@ public class UserDataDto {
     private int boardPosition;
     private List<MyTaskDto> tasks;
     private List<MyColumnsDto> columns;
-
+    private List<BoardDto> boards;
 }
