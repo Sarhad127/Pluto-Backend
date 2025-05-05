@@ -86,4 +86,15 @@ public class BoardController {
         boardService.deleteBoard(boardId, authHeader);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/{boardId}/leave")
+    public ResponseEntity<String> leaveBoard(@PathVariable Long boardId,
+                                             @RequestHeader("Authorization") String authHeader) {
+        try {
+            boardService.leaveBoard(boardId, authHeader);
+            return ResponseEntity.ok("Successfully left the board.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }

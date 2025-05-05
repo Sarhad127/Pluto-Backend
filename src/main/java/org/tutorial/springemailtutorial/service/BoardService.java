@@ -190,4 +190,20 @@ public class BoardService {
         }
         boardRepository.delete(board);
     }
+
+    @Transactional
+    public void leaveBoard(Long boardId, String authHeader) {
+        String username = extractUsernameFromToken(authHeader);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found."));
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new RuntimeException("Board not found."));
+        if (!board.getUsers().contains(user)) {
+            throw new RuntimeException("You are not a member of this board.");
+        }
+        board.getUsers().remove(user);
+        if (!board.getUsers().isEmpty()) {
+            boardRepository.save(board);
+        }
+    }
 }
