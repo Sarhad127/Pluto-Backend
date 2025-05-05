@@ -57,6 +57,8 @@ public class TaskService {
         MyTask task = new MyTask();
         task.setText(taskDto.getText());
         task.setColor(taskDto.getColor());
+        task.setTagText(taskDto.getTagText());
+        task.setTagColor(taskDto.getTagColor());
         task.setPosition(newPosition);
         task.setColumn(column);
         MyTask savedTask = TaskRepository.save(task);
@@ -65,6 +67,8 @@ public class TaskService {
         savedTaskDto.setId(savedTask.getId());
         savedTaskDto.setText(savedTask.getText());
         savedTaskDto.setColor(savedTask.getColor());
+        savedTaskDto.setTagText(savedTask.getTagText());
+        savedTaskDto.setTagColor(savedTask.getTagColor());
         savedTaskDto.setColumnId(savedTask.getColumn().getId());
         savedTaskDto.setPosition(savedTask.getPosition());
         return savedTaskDto;
@@ -85,6 +89,12 @@ public class TaskService {
             throw new RuntimeException("Task not found with ID: " + taskId);
         }
         MyTask task = taskOpt.get();
+        if (taskDto.getTagText() != null) {
+            task.setTagText(taskDto.getTagText());
+        }
+        if (taskDto.getTagColor() != null) {
+            task.setTagColor(taskDto.getTagColor());
+        }
         if (taskDto.getText() != null && !taskDto.getText().trim().isEmpty()) {
             task.setText(taskDto.getText());
         }
@@ -145,6 +155,8 @@ public class TaskService {
                         task.getId(),
                         task.getText(),
                         task.getColor(),
+                        task.getTagText(),
+                        task.getTagColor(),
                         task.getColumn().getId(),
                         task.getPosition()
                 ))
@@ -176,6 +188,8 @@ public class TaskService {
                         task.getId(),
                         task.getText(),
                         task.getColor(),
+                        task.getTagText(),
+                        task.getTagColor(),
                         task.getColumn().getId(),
                         task.getPosition()
                 ))

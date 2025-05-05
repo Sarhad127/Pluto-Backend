@@ -32,6 +32,8 @@ public class TaskController {
             createdTaskDto.setId(createdTask.getId());
             createdTaskDto.setText(createdTask.getText());
             createdTaskDto.setColor(createdTask.getColor());
+            createdTaskDto.setTagText(createdTask.getTagText());
+            createdTaskDto.setTagColor(createdTask.getTagColor());
             createdTaskDto.setColumnId(createdTask.getColumnId());
             createdTaskDto.setPosition(createdTask.getPosition());
 

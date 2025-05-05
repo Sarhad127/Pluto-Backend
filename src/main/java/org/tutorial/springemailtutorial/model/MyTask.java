@@ -19,6 +19,10 @@ public class MyTask {
 
     private String color;
 
+    private String tagText;
+
+    private String tagColor;
+
     private int position;
 
     @ManyToOne

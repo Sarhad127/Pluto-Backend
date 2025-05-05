@@ -15,6 +15,10 @@ public class MyTaskDto {
 
     private String color;
 
+    private String tagText;
+
+    private String tagColor;
+
     private Long columnId;
 
     private int position;
