@@ -78,24 +78,21 @@ public class myColumnsService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new EntityNotFoundException("Board not found"));
-
         if (!board.getUsers().contains(user)) {
             throw new SecurityException("User not authorized to modify this board");
         }
-        List<MyColumn> columns = myColumnsRepository.findByBoardUserIdAndBoardIdOrderByPlacement(user.getId(), boardId);
-        Map<String, MyColumn> columnMap = columns.stream()
-                .collect(Collectors.toMap(MyColumn::getTitle, Function.identity()));
+        List<MyColumn> columns = myColumnsRepository.findByBoardIdOrderByPlacement(boardId);
+        Map<Long, MyColumn> columnMap = columns.stream()
+                .collect(Collectors.toMap(MyColumn::getId, Function.identity()));
         for (MyColumnsDto dto : columnDtos) {
-            if (!columnMap.containsKey(dto.getTitle())) {
-                throw new EntityNotFoundException("Column not found: " + dto.getTitle());
+            if (!columnMap.containsKey(dto.getId())) {
+                throw new EntityNotFoundException("Column not found: id=" + dto.getId());
             }
         }
         for (int i = 0; i < columnDtos.size(); i++) {
             MyColumnsDto dto = columnDtos.get(i);
-            MyColumn column = columnMap.get(dto.getTitle());
-
+            MyColumn column = columnMap.get(dto.getId());
             column.setPlacement(i + 1);
-
             if (dto.getTitleColor() != null) {
                 column.setTitleColor(dto.getTitleColor());
             }
