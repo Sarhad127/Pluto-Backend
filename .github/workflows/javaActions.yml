@@ -44,3 +44,4 @@ jobs:
             --build-arg GH_CLIENT_ID=${{ secrets.GH_CLIENT_ID }} \
             --build-arg GH_CLIENT_SECRET=${{ secrets.GH_CLIENT_SECRET }} \
             --push
+#asdawd
