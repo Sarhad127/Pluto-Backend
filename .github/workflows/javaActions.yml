@@ -43,7 +43,10 @@ jobs:
             --build-arg GH_CLIENT_ID=${{ secrets.GH_CLIENT_ID }} \
             --build-arg GH_CLIENT_SECRET=${{ secrets.GH_CLIENT_SECRET }} \
             --push  # This will push the image directly after building it
+          
+          docker tag ${{ secrets.DOCKER_USERNAME }}/spring-email-tutorial:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/spring-email-tutorial:latest
 
-      # No need to push the image again since it's already done in the previous step.
-      # If you want to add the "latest" tag manually, you can use the docker tag command as you had before,
-      # but it's not necessary if you already set the tag in the buildx command.
+      - name: Push Docker image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/spring-email-tutorial:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/spring-email-tutorial:latest
