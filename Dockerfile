@@ -1,10 +1,7 @@
-# Use a lightweight JDK base image
 FROM eclipse-temurin:17-jdk-alpine
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Accept build arguments (injected via GitHub Actions)
 ARG JWT_SECRET_KEY
 ARG SPRING_DATASOURCE_URL
 ARG SPRING_DATASOURCE_USERNAME
@@ -16,7 +13,6 @@ ARG GOOGLE_CLIENT_SECRET
 ARG GH_CLIENT_ID
 ARG GH_CLIENT_SECRET
 
-# Set environment variables so Spring Boot can access them
 ENV JWT_SECRET_KEY=${JWT_SECRET_KEY}
 ENV SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
 ENV SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
@@ -28,11 +24,8 @@ ENV GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
 ENV GH_CLIENT_ID=${GH_CLIENT_ID}
 ENV GH_CLIENT_SECRET=${GH_CLIENT_SECRET}
 
-# Copy the compiled JAR into the container
 COPY target/spring-email-tutorial-0.0.1-SNAPSHOT.jar app.jar
 
-# Expose the port the app runs on
 EXPOSE 8080
 
-# Run the app
 ENTRYPOINT ["java", "-jar", "app.jar"]
