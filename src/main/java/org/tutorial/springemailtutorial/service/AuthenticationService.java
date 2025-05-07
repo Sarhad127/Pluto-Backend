@@ -17,7 +17,7 @@ import org.tutorial.springemailtutorial.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
-
+/*test*/
 @Service
 @AllArgsConstructor
 public class AuthenticationService {
