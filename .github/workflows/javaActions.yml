@@ -1,0 +1,31 @@
+name: Docker Build and Push
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/spring-email-tutorial:${{ github.sha }} .
+          docker tag ${{ secrets.DOCKER_USERNAME }}/spring-email-tutorial:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/spring-email-tutorial:latest
+
+      - name: Push Docker image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/spring-email-tutorial:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/spring-email-tutorial:latest
