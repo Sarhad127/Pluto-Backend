@@ -31,20 +31,20 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/spring-email-tutorial:${{ github.sha }} . \
-          --build-arg JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
-          --build-arg SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
-          --build-arg SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
-          --build-arg SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
-          --build-arg SUPPORT_EMAIL=${{ secrets.SUPPORT_EMAIL }} \
-          --build-arg APP_PASSWORD=${{ secrets.APP_PASSWORD }} \
-          --build-arg GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
-          --build-arg GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-          --build-arg GH_CLIENT_ID=${{ secrets.GH_CLIENT_ID }} \
-          --build-arg GH_CLIENT_SECRET=${{ secrets.GH_CLIENT_SECRET }}
-  
-
-  # Add the latest t
+          docker buildx build -t ${{ secrets.DOCKER_USERNAME }}/spring-email-tutorial:${{ github.sha }} . \
+            --build-arg JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
+            --build-arg SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
+            --build-arg SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
+            --build-arg SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
+            --build-arg SUPPORT_EMAIL=${{ secrets.SUPPORT_EMAIL }} \
+            --build-arg APP_PASSWORD=${{ secrets.APP_PASSWORD }} \
+            --build-arg GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
+            --build-arg GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
+            --build-arg GH_CLIENT_ID=${{ secrets.GH_CLIENT_ID }} \
+            --build-arg GH_CLIENT_SECRET=${{ secrets.GH_CLIENT_SECRET }} \
+            --push  # This will push the image directly after building it
+          
+          # Optionally, you can tag it manually if needed
           docker tag ${{ secrets.DOCKER_USERNAME }}/spring-email-tutorial:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/spring-email-tutorial:latest
 
       - name: Push Docker image to Docker Hub
