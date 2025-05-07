@@ -40,10 +40,11 @@ jobs:
           --build-arg APP_PASSWORD=${{ secrets.APP_PASSWORD }} \
           --build-arg GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
           --build-arg GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-          --build-arg GITHUB_CLIENT_ID=${{ secrets.GITHUB_CLIENT_ID }} \
-          --build-arg GITHUB_CLIENT_SECRET=${{ secrets.GITHUB_CLIENT_SECRET }}
-          
-          # Add the latest tag
+          --build-arg GH_CLIENT_ID=${{ secrets.GH_CLIENT_ID }} \
+          --build-arg GH_CLIENT_SECRET=${{ secrets.GH_CLIENT_SECRET }}
+  
+
+  # Add the latest tag
           docker tag ${{ secrets.DOCKER_USERNAME }}/spring-email-tutorial:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/spring-email-tutorial:latest
 
       - name: Push Docker image to Docker Hub
