@@ -1,0 +1,6 @@
+target/*.jar.original
+target/test-classes
+**/.*
+**/*.iml
+.idea/
+.git/
