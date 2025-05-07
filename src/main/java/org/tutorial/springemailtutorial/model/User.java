@@ -1,11 +1,14 @@
 package org.tutorial.springemailtutorial.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -38,6 +41,25 @@ public class User implements UserDetails {
     private boolean enabled;
 
     private String provider;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_board",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "board_id")
+    )
+    @JsonIgnore
+    private List<Board> boards = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "user-notes")
+    @ToString.Exclude
+    private List<Note> notes;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "user-calender")
+    @ToString.Exclude
+    private List<CalendarNote> calendarNotes;
 
     public User(String username, String email, String password) {
         this.username = username;

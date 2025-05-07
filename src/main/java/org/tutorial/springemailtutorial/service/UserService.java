@@ -1,10 +1,14 @@
 package org.tutorial.springemailtutorial.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.tutorial.springemailtutorial.model.User;
+import org.tutorial.springemailtutorial.repository.BoardRepository;
+import org.tutorial.springemailtutorial.repository.CalendarNoteRepository;
+import org.tutorial.springemailtutorial.repository.NoteRepository;
 import org.tutorial.springemailtutorial.repository.UserRepository;
 
 @Service
@@ -13,6 +17,16 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final BoardRepository boardRepository;
+    private final CalendarNoteRepository calendarNoteRepository;
+    private final NoteRepository noteRepository;
+    private final JwtService jwtService;
+
+    public boolean verifyPassword(String username, String password) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return passwordEncoder.matches(password, user.getPassword());
+    }
 
     public void updateUsername(String currentEmail, String newUsername) {
         User user = userRepository.findByUsername(currentEmail)
@@ -35,5 +49,23 @@ public class UserService {
         }
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUser(String authHeader, String password) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Invalid authorization header");
+        }
+        String token = authHeader.substring(7).trim();
+        String username = jwtService.extractUsername(token);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("Incorrect password");
+        }
+        boardRepository.deleteAll(user.getBoards());
+        calendarNoteRepository.deleteAll(user.getCalendarNotes());
+        noteRepository.deleteAll(user.getNotes());
+        userRepository.delete(user);
     }
 }

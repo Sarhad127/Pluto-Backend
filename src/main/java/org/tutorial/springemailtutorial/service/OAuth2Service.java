@@ -6,12 +6,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.tutorial.springemailtutorial.model.Board;
 import org.tutorial.springemailtutorial.model.User;
+import org.tutorial.springemailtutorial.repository.BoardRepository;
 import org.tutorial.springemailtutorial.repository.UserRepository;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -19,6 +19,7 @@ public class OAuth2Service {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final BoardRepository boardRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(OAuth2Service.class);
 
@@ -29,27 +30,34 @@ public class OAuth2Service {
         try {
             String username = extractUsername(attributes, provider);
             String email = extractEmail(attributes, provider, username);
-
             logger.info("Processing {} user - Email: {}, Username: {}", provider, email, username);
-
             Optional<User> existingUser = userRepository.findByEmail(email);
-
-            User user = existingUser.orElseGet(() -> {
-                User newUser = new User();
-                newUser.setEnabled(true);
-                newUser.setProvider(provider);
-                newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+            User user;
+            if (existingUser.isEmpty()) {
+                user = new User();
+                user.setEnabled(true);
+                user.setProvider(provider);
+                user.setUsername(username);
+                user.setEmail(email);
+                user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
                 logger.info("Creating new user for {}", email);
-                return newUser;
-            });
-
-            user.setUsername(username);
-            user.setEmail(email);
-            user.setProvider(provider);
+            } else {
+                user = existingUser.get();
+                logger.info("User already exists: {}", email);
+            }
 
             userRepository.save(user);
-            logger.info("Successfully saved {} user: {}", provider, user);
 
+            List<Board> existingBoards = boardRepository.findByUsersContaining(user);
+            if (existingBoards.isEmpty()) {
+                Board defaultBoard = new Board();
+                defaultBoard.setTitle("Board 1");
+                defaultBoard.setPosition(1);
+                defaultBoard.setUsers(new HashSet<>());
+                defaultBoard.getUsers().add(user);
+                boardRepository.save(defaultBoard);
+                logger.info("Created default board for user: {} with ID: {}", user.getEmail(), defaultBoard.getId());
+            }
             return email;
         } catch (Exception e) {
             logger.error("Error processing {} OAuth user: {}", provider, e.getMessage());

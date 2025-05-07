@@ -19,10 +19,14 @@ public class MyTask {
 
     private String color;
 
+    private String tagText;
+
+    private String tagColor;
+
     private int position;
 
     @ManyToOne
     @JoinColumn(name = "column_id")
     @JsonBackReference
-    private myColumns column;
+    private MyColumn column;
 }
