@@ -2,9 +2,9 @@ name: Docker Build and Push
 
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
 
 jobs:
   build-and-push:
@@ -32,22 +32,22 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push Docker image (by SHA + latest)
+      - name: Build and push Docker image
         run: |
           IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/spring-email-tutorial
-          docker buildx build \
+          docker buildx build . \
             --platform linux/amd64 \
-            --build-arg JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
-            --build-arg SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
-            --build-arg SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
-            --build-arg SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
-            --build-arg SUPPORT_EMAIL=${{ secrets.SUPPORT_EMAIL }} \
-            --build-arg APP_PASSWORD=${{ secrets.APP_PASSWORD }} \
-            --build-arg GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
-            --build-arg GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-            --build-arg GH_CLIENT_ID=${{ secrets.GH_CLIENT_ID }} \
-            --build-arg GH_CLIENT_SECRET=${{ secrets.GH_CLIENT_SECRET }} \
             --tag $IMAGE_NAME:${{ github.sha }} \
             --tag $IMAGE_NAME:latest \
-            --push \
-            .
+            --push
+        env:
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
+          SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
+          SUPPORT_EMAIL: ${{ secrets.SUPPORT_EMAIL }}
+          APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GH_CLIENT_ID: ${{ secrets.GH_CLIENT_ID }}
+          GH_CLIENT_SECRET: ${{ secrets.GH_CLIENT_SECRET }}
