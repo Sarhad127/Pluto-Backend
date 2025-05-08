@@ -48,7 +48,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**", "/users/**", "/oauth2/**",
                                 "/login/**","/tasks/**", "/api/**", "/user/**", "/boards/**"
-                        , "/accept-invitation/**").permitAll()
+                                , "/accept-invitation/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
@@ -76,7 +76,7 @@ public class SecurityConfiguration {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:3000",
-                "https://https://todo-frontend-production-8fe7.up.railway.app"
+                "https://todo-frontend-production-8fe7.up.railway.app"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
@@ -95,10 +95,10 @@ public class SecurityConfiguration {
                 String email = oAuth2Service.registerOrUpdateOAuth2User(oAuth2User, provider);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
                 String jwt = jwtService.generateToken(userDetails);
-                String redirectUrl = "https://https://todo-frontend-production-8fe7.up.railway.app/oauth2/redirect?token=" + jwt;
+                String redirectUrl = "https://todo-frontend-production-8fe7.up.railway.app/oauth2/redirect?token=" + jwt;
                 response.sendRedirect(redirectUrl);
             } else {
-                response.sendRedirect("https://https://todo-frontend-production-8fe7.up.railway.app/login?error=OAuth2");
+                response.sendRedirect("https://todo-frontend-production-8fe7.up.railway.app/login?error=OAuth2");
             }
         };
     }
