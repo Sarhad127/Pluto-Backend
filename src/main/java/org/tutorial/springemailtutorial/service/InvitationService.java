@@ -42,7 +42,7 @@ public class InvitationService {
         message.setText("Hello,\n\n" + inviter.getUsername() +
                 " has invited you to join the board '" + board.getTitle() + "'.\n\n" +
                 "To accept the invitation, please visit the following link: \n" +
-                "http://localhost:3000/accept-invitation?boardId=" + board.getId());
+                "todo-frontend-production-8fe7.up.railway.app/accept-invitation?boardId=" + board.getId());
 
         javaMailSender.send(message);
     }
