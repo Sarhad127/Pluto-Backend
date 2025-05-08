@@ -24,7 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/auth")
 @AllArgsConstructor
-@CrossOrigin(origins = "todo-frontend-production-8fe7.up.railway.app")
+@CrossOrigin(origins = "https://todo-frontend-production-8fe7.up.railway.app")
 public class AuthenticationController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
