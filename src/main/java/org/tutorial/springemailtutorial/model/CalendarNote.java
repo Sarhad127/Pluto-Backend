@@ -20,6 +20,8 @@ public class CalendarNote {
 
     private LocalDate date;
 
+    private String color;
+
     @Column(columnDefinition = "TEXT")
     private String content;
 

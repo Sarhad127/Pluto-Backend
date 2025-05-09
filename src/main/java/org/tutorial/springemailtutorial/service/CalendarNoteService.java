@@ -10,6 +10,7 @@ import org.tutorial.springemailtutorial.repository.UserRepository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CalendarNoteService {
@@ -27,15 +28,27 @@ public class CalendarNoteService {
         String username = jwtService.extractUsername(authHeader.substring(7));
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
         LocalDate date = noteDTO.getDate();
         String content = noteDTO.getContent();
-
-        CalendarNote note = calendarNoteRepository.findByUserAndDate(user, date)
-                .orElse(new CalendarNote(date, "", user));
-
-        note.setContent(content);
-        return calendarNoteRepository.save(note);
+        String color = noteDTO.getColor();
+        Optional<CalendarNote> existingNote = calendarNoteRepository.findByUserAndDate(user, date);
+        if (existingNote.isPresent()) {
+            CalendarNote note = existingNote.get();
+            if (content == null || content.trim().isEmpty()) {
+                calendarNoteRepository.delete(note);
+                return null;
+            }
+            note.setContent(content);
+            note.setColor(color);
+            return calendarNoteRepository.save(note);
+        } else {
+            if (content != null && !content.trim().isEmpty()) {
+                CalendarNote newNote = new CalendarNote(date, content, user);
+                newNote.setColor(color);
+                return calendarNoteRepository.save(newNote);
+            }
+            return null;
+        }
     }
 
     public List<CalendarNote> getUserNotes(String authHeader) {
