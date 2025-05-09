@@ -9,4 +9,5 @@ public class CalendarNoteDTO {
 
     private LocalDate date;
     private String content;
+    private String color;
 }
