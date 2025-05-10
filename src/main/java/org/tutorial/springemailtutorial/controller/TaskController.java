@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/tasks")
 @AllArgsConstructor
-@CrossOrigin(origins = "https://todo-frontend-production-8fe7.up.railway.app")
+@CrossOrigin(origins = "http://localhost:3000")
 public class TaskController {
 
     private final TaskService taskService;
