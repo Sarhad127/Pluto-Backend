@@ -92,9 +92,9 @@ public class TaskService {
         if (taskDto.getTagText() != null) {
             task.setTagText(taskDto.getTagText());
         }
-        if (taskDto.getTagColor() != null) {
-            task.setTagColor(taskDto.getTagColor());
-        }
+
+        task.setTagColor(taskDto.getTagColor());
+
         if (taskDto.getText() != null && !taskDto.getText().trim().isEmpty()) {
             task.setText(taskDto.getText());
         }
