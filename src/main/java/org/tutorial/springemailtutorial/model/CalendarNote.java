@@ -22,6 +22,8 @@ public class CalendarNote {
 
     private String color;
 
+    private String textColor;
+
     @Column(columnDefinition = "TEXT")
     private String content;
 

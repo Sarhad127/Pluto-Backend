@@ -31,6 +31,7 @@ public class CalendarNoteService {
         LocalDate date = noteDTO.getDate();
         String content = noteDTO.getContent();
         String color = noteDTO.getColor();
+        String textColor = noteDTO.getTextColor();
         Optional<CalendarNote> existingNote = calendarNoteRepository.findByUserAndDate(user, date);
         if (existingNote.isPresent()) {
             CalendarNote note = existingNote.get();
@@ -40,6 +41,7 @@ public class CalendarNoteService {
             }
             note.setContent(content);
             note.setColor(color);
+            note.setTextColor(textColor);
             return calendarNoteRepository.save(note);
         } else {
             if (content != null && !content.trim().isEmpty()) {
@@ -57,5 +59,14 @@ public class CalendarNoteService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         return calendarNoteRepository.findByUser(user);
+    }
+
+    public void deleteNoteByDate(String authHeader, LocalDate date) {
+        String username = jwtService.extractUsername(authHeader.substring(7));
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        CalendarNote note = calendarNoteRepository.findByUserAndDate(user, date)
+                .orElseThrow(() -> new RuntimeException("Note not found"));
+        calendarNoteRepository.delete(note);
     }
 }

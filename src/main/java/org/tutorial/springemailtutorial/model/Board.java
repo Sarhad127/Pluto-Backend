@@ -39,4 +39,14 @@ public class Board {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference(value = "board-columns")
     private List<MyColumn> columns;
+
+    @Override
+    public String toString() {
+        return "Board{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", position=" + position +
+                ", userIds=" + users.stream().map(User::getId).toList() +
+                '}';
+    }
 }

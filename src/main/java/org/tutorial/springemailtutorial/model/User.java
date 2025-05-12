@@ -61,6 +61,15 @@ public class User implements UserDetails {
     @ToString.Exclude
     private List<CalendarNote> calendarNotes;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ScheduleBlock> scheduleBlocks = new ArrayList<>();
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private ScheduleSettings scheduleSettings;
+
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
