@@ -95,10 +95,10 @@ public class SecurityConfiguration {
                 String email = oAuth2Service.registerOrUpdateOAuth2User(oAuth2User, provider);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
                 String jwt = jwtService.generateToken(userDetails);
-                String redirectUrl = "http://localhost:3000/oauth2/redirect?token=" + jwt;
+                String redirectUrl = "https://todo-frontend-production-8fe7.up.railway.app/oauth2/redirect?token=" + jwt;
                 response.sendRedirect(redirectUrl);
             } else {
-                response.sendRedirect("http://localhost:3000/login?error=OAuth2");
+                response.sendRedirect("https://todo-frontend-production-8fe7.up.railway.app/login?error=OAuth2");
             }
         };
     }
