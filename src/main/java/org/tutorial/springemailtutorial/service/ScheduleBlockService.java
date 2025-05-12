@@ -5,9 +5,12 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.tutorial.springemailtutorial.dto.ScheduleBlockDto;
+import org.tutorial.springemailtutorial.dto.ScheduleSettingsDto;
 import org.tutorial.springemailtutorial.model.ScheduleBlock;
+import org.tutorial.springemailtutorial.model.ScheduleSettings;
 import org.tutorial.springemailtutorial.model.User;
 import org.tutorial.springemailtutorial.repository.ScheduleBlockRepository;
+import org.tutorial.springemailtutorial.repository.ScheduleSettingsRepository;
 import org.tutorial.springemailtutorial.repository.UserRepository;
 
 import java.util.List;
@@ -19,14 +22,17 @@ public class ScheduleBlockService {
     private final ScheduleBlockRepository scheduleBlockRepository;
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final ScheduleSettingsRepository scheduleSettingsRepository;
 
     @Autowired
     public ScheduleBlockService(ScheduleBlockRepository scheduleBlockRepository,
                                 UserRepository userRepository,
-                                JwtService jwtService) {
+                                JwtService jwtService,
+                                ScheduleSettingsRepository scheduleSettingsRepository) {
         this.scheduleBlockRepository = scheduleBlockRepository;
         this.userRepository = userRepository;
         this.jwtService = jwtService;
+        this.scheduleSettingsRepository = scheduleSettingsRepository;
     }
 
     private String getUsernameFromToken(String authHeader) {
@@ -144,5 +150,27 @@ public class ScheduleBlockService {
         }
 
         scheduleBlockRepository.delete(block);
+    }
+
+    @Transactional
+    public void updateScheduleSettings(ScheduleSettingsDto settingsDto, String authHeader) {
+        String username = getUsernameFromToken(authHeader);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        ScheduleSettings settings = scheduleSettingsRepository.findByUserId(user.getId())
+                .orElseGet(ScheduleSettings::new);
+        settings.setStartHour(settingsDto.getStartHour());
+        settings.setEndHour(settingsDto.getEndHour());
+        settings.setUser(user);
+        scheduleSettingsRepository.save(settings);
+    }
+
+    public ScheduleSettingsDto getScheduleSettings(String authHeader) {
+        String username = getUsernameFromToken(authHeader);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        ScheduleSettings scheduleSettings = scheduleSettingsRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Schedule settings not found"));
+        return new ScheduleSettingsDto(scheduleSettings);
     }
 }

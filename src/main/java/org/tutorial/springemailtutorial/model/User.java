@@ -65,6 +65,11 @@ public class User implements UserDetails {
     @JsonIgnore
     private List<ScheduleBlock> scheduleBlocks = new ArrayList<>();
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private ScheduleSettings scheduleSettings;
+
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;

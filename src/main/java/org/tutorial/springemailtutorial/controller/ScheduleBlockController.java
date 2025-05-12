@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.tutorial.springemailtutorial.dto.ScheduleBlockDto;
+import org.tutorial.springemailtutorial.dto.ScheduleSettingsDto;
 import org.tutorial.springemailtutorial.service.ScheduleBlockService;
 
 import java.util.List;
@@ -39,5 +40,20 @@ public class ScheduleBlockController {
                                                     @RequestHeader("Authorization") String authHeader) {
         scheduleBlockService.deleteScheduleBlock(id, authHeader);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/schedule-settings")
+    public ResponseEntity<String> updateScheduleSettings(@RequestBody ScheduleSettingsDto settingsDto,
+                                                         @RequestHeader("Authorization") String authHeader) {
+        if (settingsDto.getStartHour() < 0 || settingsDto.getEndHour() > 23 || settingsDto.getStartHour() >= settingsDto.getEndHour()) {
+            return ResponseEntity.badRequest().body("Invalid start or end hour");
+        }
+        scheduleBlockService.updateScheduleSettings(settingsDto, authHeader);
+        return ResponseEntity.ok("Schedule hours updated successfully");
+    }
+
+    @GetMapping("/schedule-settings")
+    public ResponseEntity<ScheduleSettingsDto> getScheduleSettings(@RequestHeader("Authorization") String authHeader) {
+        return ResponseEntity.ok(scheduleBlockService.getScheduleSettings(authHeader));
     }
 }
