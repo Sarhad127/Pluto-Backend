@@ -116,4 +116,19 @@ public class UserDataController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing request");
         }
     }
+
+    @GetMapping("/user/email")
+    public ResponseEntity<String> getUserEmail(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        String token = authHeader.substring(7).trim();
+        String username = jwtService.extractUsername(token);
+
+        User user = UserRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+
+        return ResponseEntity.ok(user.getEmail());
+    }
 }
