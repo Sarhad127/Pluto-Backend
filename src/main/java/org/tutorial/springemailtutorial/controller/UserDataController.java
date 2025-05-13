@@ -16,9 +16,7 @@ import org.tutorial.springemailtutorial.service.JwtService;
 import org.tutorial.springemailtutorial.service.TaskService;
 import org.tutorial.springemailtutorial.service.myColumnsService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -105,12 +103,19 @@ public class UserDataController {
             if (users.size() <= 1) {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Board has one or no other users");
             }
-            List<String> otherUsernames = users.stream()
+            List<Map<String, String>> userAvatars = users.stream()
                     .filter(user -> !user.getId().equals(requestingUser.getId()))
-                    .map(User::getUsername)
+                    .map(user -> {
+                        Map<String, String> userInfo = new HashMap<>();
+                        userInfo.put("username", user.getUsername());
+                        userInfo.put("avatarBackgroundColor", user.getAvatarBackgroundColor());
+                        userInfo.put("avatarImageUrl", user.getAvatarImageUrl());
+                        userInfo.put("avatarInitials", user.getAvatarInitials());
+                        return userInfo;
+                    })
                     .collect(Collectors.toList());
-            System.out.println(otherUsernames);
-            return ResponseEntity.ok(otherUsernames);
+
+            return ResponseEntity.ok(userAvatars);
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing request");
