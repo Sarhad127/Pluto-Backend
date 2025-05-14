@@ -22,4 +22,10 @@ public class MyTaskDto {
     private Long columnId;
 
     private int position;
+
+    private String avatarBackgroundColor;
+    private String avatarImageUrl;
+    private String avatarInitials;
+    private String avatarUsername;
+
 }

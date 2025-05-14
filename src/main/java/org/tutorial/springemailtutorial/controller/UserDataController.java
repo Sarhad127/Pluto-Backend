@@ -136,4 +136,44 @@ public class UserDataController {
 
         return ResponseEntity.ok(user.getEmail());
     }
+
+    @GetMapping("/boards/{boardId}/Allusers")
+    public ResponseEntity<?> getAllUserOnBoard(@RequestHeader("Authorization") String authHeader,
+                                            @PathVariable("boardId") Long boardId) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid authorization token");
+        }
+        try {
+            String token = authHeader.substring(7).trim();
+            String username = jwtService.extractUsername(token);
+            User requestingUser = UserRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+            Board board = boardRepository.findById(boardId)
+                    .orElseThrow(() -> new RuntimeException("Board not found with id: " + boardId));
+            if (!board.getUsers().contains(requestingUser)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User doesn't have access to this board");
+            }
+            Set<User> users = board.getUsers();
+            if (users.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No users on the board");
+            }
+
+            List<Map<String, String>> userAvatars = users.stream()
+                    .map(user -> {
+                        Map<String, String> userInfo = new HashMap<>();
+                        userInfo.put("userId", user.getId().toString());
+                        userInfo.put("username", user.getUsername());
+                        userInfo.put("avatarBackgroundColor", user.getAvatarBackgroundColor());
+                        userInfo.put("avatarImageUrl", user.getAvatarImageUrl());
+                        userInfo.put("avatarInitials", user.getAvatarInitials());
+                        return userInfo;
+                    })
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(userAvatars);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing request");
+        }
+    }
 }

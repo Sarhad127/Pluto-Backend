@@ -25,6 +25,11 @@ public class MyTask {
 
     private int position;
 
+    private String avatarBackgroundColor;
+    private String avatarImageUrl;
+    private String avatarInitials;
+    private String avatarUsername;
+
     @ManyToOne
     @JoinColumn(name = "column_id")
     @JsonBackReference
