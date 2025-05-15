@@ -16,9 +16,7 @@ import org.tutorial.springemailtutorial.service.JwtService;
 import org.tutorial.springemailtutorial.service.TaskService;
 import org.tutorial.springemailtutorial.service.myColumnsService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -105,12 +103,74 @@ public class UserDataController {
             if (users.size() <= 1) {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Board has one or no other users");
             }
-            List<String> otherUsernames = users.stream()
+            List<Map<String, String>> userAvatars = users.stream()
                     .filter(user -> !user.getId().equals(requestingUser.getId()))
-                    .map(User::getUsername)
+                    .map(user -> {
+                        Map<String, String> userInfo = new HashMap<>();
+                        userInfo.put("username", user.getUsername());
+                        userInfo.put("avatarBackgroundColor", user.getAvatarBackgroundColor());
+                        userInfo.put("avatarImageUrl", user.getAvatarImageUrl());
+                        userInfo.put("avatarInitials", user.getAvatarInitials());
+                        return userInfo;
+                    })
                     .collect(Collectors.toList());
-            System.out.println(otherUsernames);
-            return ResponseEntity.ok(otherUsernames);
+
+            return ResponseEntity.ok(userAvatars);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing request");
+        }
+    }
+
+    @GetMapping("/user/email")
+    public ResponseEntity<String> getUserEmail(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        String token = authHeader.substring(7).trim();
+        String username = jwtService.extractUsername(token);
+
+        User user = UserRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+
+        return ResponseEntity.ok(user.getEmail());
+    }
+
+    @GetMapping("/boards/{boardId}/Allusers")
+    public ResponseEntity<?> getAllUserOnBoard(@RequestHeader("Authorization") String authHeader,
+                                            @PathVariable("boardId") Long boardId) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid authorization token");
+        }
+        try {
+            String token = authHeader.substring(7).trim();
+            String username = jwtService.extractUsername(token);
+            User requestingUser = UserRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+            Board board = boardRepository.findById(boardId)
+                    .orElseThrow(() -> new RuntimeException("Board not found with id: " + boardId));
+            if (!board.getUsers().contains(requestingUser)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User doesn't have access to this board");
+            }
+            Set<User> users = board.getUsers();
+            if (users.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No users on the board");
+            }
+
+            List<Map<String, String>> userAvatars = users.stream()
+                    .map(user -> {
+                        Map<String, String> userInfo = new HashMap<>();
+                        userInfo.put("userId", user.getId().toString());
+                        userInfo.put("username", user.getUsername());
+                        userInfo.put("avatarBackgroundColor", user.getAvatarBackgroundColor());
+                        userInfo.put("avatarImageUrl", user.getAvatarImageUrl());
+                        userInfo.put("avatarInitials", user.getAvatarInitials());
+                        return userInfo;
+                    })
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(userAvatars);
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing request");

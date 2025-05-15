@@ -94,6 +94,10 @@ public class TaskService {
         }
 
         task.setTagColor(taskDto.getTagColor());
+        task.setAvatarBackgroundColor(taskDto.getAvatarBackgroundColor());
+        task.setAvatarImageUrl(taskDto.getAvatarImageUrl());
+        task.setAvatarInitials(taskDto.getAvatarInitials());
+        task.setAvatarUsername(taskDto.getAvatarUsername());
 
         if (taskDto.getText() != null && !taskDto.getText().trim().isEmpty()) {
             task.setText(taskDto.getText());
@@ -158,7 +162,11 @@ public class TaskService {
                         task.getTagText(),
                         task.getTagColor(),
                         task.getColumn().getId(),
-                        task.getPosition()
+                        task.getPosition(),
+                        task.getAvatarInitials(),
+                        task.getAvatarImageUrl(),
+                        task.getAvatarBackgroundColor(),
+                        task.getAvatarUsername()
                 ))
                 .collect(Collectors.toList());
     }
@@ -191,7 +199,11 @@ public class TaskService {
                         task.getTagText(),
                         task.getTagColor(),
                         task.getColumn().getId(),
-                        task.getPosition()
+                        task.getPosition(),
+                        task.getAvatarBackgroundColor(),
+                        task.getAvatarImageUrl(),
+                        task.getAvatarInitials(),
+                        task.getAvatarUsername()
                 ))
                 .collect(Collectors.toList());
     }

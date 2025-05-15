@@ -166,11 +166,23 @@ public class ScheduleBlockService {
     }
 
     public ScheduleSettingsDto getScheduleSettings(String authHeader) {
-        String username = getUsernameFromToken(authHeader);
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        ScheduleSettings scheduleSettings = scheduleSettingsRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Schedule settings not found"));
-        return new ScheduleSettingsDto(scheduleSettings);
+        try {
+            String username = getUsernameFromToken(authHeader);
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> {
+                        System.out.println("User not found for username: " + username);
+                        return new EntityNotFoundException("User not found");
+                    });
+
+            return scheduleSettingsRepository.findByUserId(user.getId())
+                    .map(ScheduleSettingsDto::new)
+                    .orElseGet(() -> {
+                        System.out.println("No schedule settings found for user ID: " + user.getId());
+                        return null;
+                    });
+        } catch (Exception e) {
+            System.out.println("Error retrieving schedule settings: " + e.getMessage());
+            return null;
+        }
     }
 }
