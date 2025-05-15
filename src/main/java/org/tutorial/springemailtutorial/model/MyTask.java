@@ -26,6 +26,7 @@ public class MyTask {
     private int position;
 
     private String avatarBackgroundColor;
+    @Column(name = "avatar_image_url", length = 1024)
     private String avatarImageUrl;
     private String avatarInitials;
     private String avatarUsername;
