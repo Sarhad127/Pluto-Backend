@@ -42,6 +42,15 @@ public class User implements UserDetails {
 
     private String provider;
 
+    @Column(name = "avatar_bg_color")
+    private String avatarBackgroundColor;
+
+    @Column(name = "avatar_image_url", columnDefinition = "TEXT")
+    private String avatarImageUrl;
+
+    @Column(name = "avatar_initials")
+    private String avatarInitials;
+
     @ManyToMany
     @JoinTable(
             name = "user_board",

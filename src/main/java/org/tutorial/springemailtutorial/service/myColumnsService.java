@@ -55,8 +55,8 @@ public class myColumnsService {
                 .orElseThrow(() -> new RuntimeException("Board not found"));
 
         List<MyColumn> boardColumns = myColumnsRepository.findByBoardIdOrderByPlacement(boardId);
-        if (boardColumns.size() >= 5) {
-            throw new RuntimeException("Maximum number of columns (5) reached for this board.");
+        if (boardColumns.size() >= 8) {
+            throw new RuntimeException("Maximum number of columns (8) reached for this board.");
         }
         int placement = boardColumns.size() + 1;
         MyColumn column = new MyColumn();
