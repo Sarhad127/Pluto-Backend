@@ -45,22 +45,20 @@ public class TaskController {
 
     @PostMapping("/reorder")
     public ResponseEntity<?> reorderTasks(
-            @RequestBody List<MyTaskDto> taskDtos,
-            @RequestHeader("Authorization") String authHeader) {
-        if (taskDtos.stream().anyMatch(dto -> dto.getId() == null)) {
-            throw new IllegalArgumentException("All tasks must have IDs for reordering");
-        }
+            @RequestBody List<MyTaskDto> taskDtos) {
         for (MyTaskDto dto : taskDtos) {
-            System.out.println("Reordering Task: " + dto);
             MyTask task = taskRepository.findById(dto.getId())
-                    .orElseThrow(() -> new RuntimeException("Task not found: " + dto.getId()));
-            task.setPosition(dto.getPosition());
-            if (!task.getColumn().getId().equals(dto.getColumnId())) {
-                MyColumn newColumn = myColumnsRepository.findById(dto.getColumnId())
-                        .orElseThrow(() -> new RuntimeException("Column not found"));
-                task.setColumn(newColumn);
+                    .orElseThrow(() -> new RuntimeException("Task not found"));
+            if (task.getPosition() != dto.getPosition()
+                    || !task.getColumn().getId().equals(dto.getColumnId())) {
+                task.setPosition(dto.getPosition());
+                if (!task.getColumn().getId().equals(dto.getColumnId())) {
+                    MyColumn newColumn = myColumnsRepository.findById(dto.getColumnId())
+                            .orElseThrow(() -> new RuntimeException("Column not found"));
+                    task.setColumn(newColumn);
+                }
+                taskRepository.save(task);
             }
-            taskRepository.save(task);
         }
         return ResponseEntity.ok().build();
     }
