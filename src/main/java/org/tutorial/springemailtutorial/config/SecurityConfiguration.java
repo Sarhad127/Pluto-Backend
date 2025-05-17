@@ -48,7 +48,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**", "/users/**", "/oauth2/**",
                                 "/login/**","/tasks/**", "/api/**", "/user/**", "/boards/**"
-                                , "/accept-invitation/**").permitAll()
+                                , "/accept-invitation/**", "/board", "/chat", "/webSocket/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
