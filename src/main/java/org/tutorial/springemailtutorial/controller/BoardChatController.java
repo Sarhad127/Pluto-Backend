@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.tutorial.springemailtutorial.dto.ChatMessageDTO;
 import org.tutorial.springemailtutorial.model.Board;
 import org.tutorial.springemailtutorial.model.BoardChatMessage;
 import org.tutorial.springemailtutorial.model.User;
@@ -31,12 +32,6 @@ public class BoardChatController {
 
     @Autowired
     private JwtService jwtService;
-
-    public static class ChatMessageDTO {
-        private String message;
-        public String getMessage() { return message; }
-        public void setMessage(String message) { this.message = message; }
-    }
 
     @PostMapping
     public ResponseEntity<BoardChatMessage> sendMessage(@PathVariable Long boardId,
