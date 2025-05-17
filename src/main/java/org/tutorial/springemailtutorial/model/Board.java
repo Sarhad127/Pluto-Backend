@@ -40,8 +40,8 @@ public class Board {
     @JsonManagedReference(value = "board-columns")
     private List<MyColumn> columns;
 
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference(value = "board-chatmessages")
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("board-chatmessages")
     private List<BoardChatMessage> chatMessages;
 
     @Override

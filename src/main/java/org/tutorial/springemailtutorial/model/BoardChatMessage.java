@@ -26,8 +26,8 @@ public class BoardChatMessage {
     @JoinColumn(name = "sender_id")
     private User sender;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
-    @JsonBackReference
+    @JsonBackReference("board-chatmessages")
     private Board board;
 }
