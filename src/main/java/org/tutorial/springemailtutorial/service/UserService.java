@@ -73,9 +73,15 @@ public class UserService {
     public void createAvatarFromUsername(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        String initials = username.length() >= 2
-                ? username.substring(0, 2).toUpperCase()
-                : username.toUpperCase();
+        String[] parts = username.trim().split("\\s+");
+        String initials;
+        if (parts.length >= 2) {
+            initials = (parts[0].substring(0, 1) + parts[1].substring(0, 1)).toUpperCase();
+        } else if (username.length() >= 2) {
+            initials = username.substring(0, 2).toUpperCase();
+        } else {
+            initials = username.toUpperCase();
+        }
         user.setAvatarInitials(initials);
         userRepository.save(user);
     }
