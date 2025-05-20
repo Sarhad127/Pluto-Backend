@@ -17,6 +17,7 @@ import org.tutorial.springemailtutorial.responses.ResponseMessage;
 import org.tutorial.springemailtutorial.service.AuthenticationService;
 import org.tutorial.springemailtutorial.service.BoardService;
 import org.tutorial.springemailtutorial.service.JwtService;
+import org.tutorial.springemailtutorial.service.UserService;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +34,7 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
     private final org.tutorial.springemailtutorial.service.myColumnsService myColumnsService;
     private final BoardService boardService;
+    private final UserService userService;
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody LoginUserDto loginUserDto) {
@@ -43,6 +45,7 @@ public class AuthenticationController {
             String authHeader = "Bearer " + jwtToken;
             List<BoardDto> userBoards = boardService.getBoards(authHeader);
             if (userBoards == null || userBoards.isEmpty()) {
+                userService.createAvatarFromUsername(authenticatedUser.getUsername());
                 Board newBoard = boardService.createDefaultBoard(authenticatedUser);
                 logger.info("No boards found, created a default board with ID: {}", newBoard.getId());
             }

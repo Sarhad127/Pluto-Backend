@@ -40,6 +40,7 @@ public class OAuth2Service {
                 user.setUsername(username);
                 user.setEmail(email);
                 user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+                user.setAvatarInitials(generateAvatarInitialsFromUsername(username));
                 logger.info("Creating new user for {}", email);
             } else {
                 user = existingUser.get();
@@ -62,6 +63,22 @@ public class OAuth2Service {
         } catch (Exception e) {
             logger.error("Error processing {} OAuth user: {}", provider, e.getMessage());
             throw e;
+        }
+    }
+
+    private String generateAvatarInitialsFromUsername(String username) {
+        if (username == null || username.isBlank()) return "";
+        String[] parts = username.split("[^a-zA-Z0-9]+");
+        if (parts.length == 1) {
+            return parts[0].substring(0, Math.min(2, parts[0].length())).toUpperCase();
+        } else {
+            StringBuilder initials = new StringBuilder();
+            for (int i = 0; i < Math.min(2, parts.length); i++) {
+                if (!parts[i].isEmpty()) {
+                    initials.append(parts[i].charAt(0));
+                }
+            }
+            return initials.toString().toUpperCase();
         }
     }
 

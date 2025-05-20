@@ -68,4 +68,15 @@ public class UserService {
         noteRepository.deleteAll(user.getNotes());
         userRepository.delete(user);
     }
+
+    @Transactional
+    public void createAvatarFromUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        String initials = username.length() >= 2
+                ? username.substring(0, 2).toUpperCase()
+                : username.toUpperCase();
+        user.setAvatarInitials(initials);
+        userRepository.save(user);
+    }
 }
