@@ -41,6 +41,7 @@ public class OAuth2Service {
                 user.setEmail(email);
                 user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
                 user.setAvatarInitials(generateAvatarInitialsFromUsername(username));
+                user.setAvatarBackgroundColor(generateRandomHexColor());
                 logger.info("Creating new user for {}", email);
             } else {
                 user = existingUser.get();
@@ -80,6 +81,14 @@ public class OAuth2Service {
             }
             return initials.toString().toUpperCase();
         }
+    }
+
+    private String generateRandomHexColor() {
+        Random random = new Random();
+        int r = random.nextInt(256);
+        int g = random.nextInt(256);
+        int b = random.nextInt(256);
+        return String.format("#%02X%02X%02X", r, g, b);
     }
 
     private String extractUsername(Map<String, Object> attributes, String provider) {

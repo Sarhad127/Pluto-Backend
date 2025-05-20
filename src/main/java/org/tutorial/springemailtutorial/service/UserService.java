@@ -11,6 +11,8 @@ import org.tutorial.springemailtutorial.repository.CalendarNoteRepository;
 import org.tutorial.springemailtutorial.repository.NoteRepository;
 import org.tutorial.springemailtutorial.repository.UserRepository;
 
+import java.util.Random;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -83,6 +85,15 @@ public class UserService {
             initials = username.toUpperCase();
         }
         user.setAvatarInitials(initials);
+        user.setAvatarBackgroundColor(generateRandomHexColor());
         userRepository.save(user);
+    }
+
+    private String generateRandomHexColor() {
+        Random random = new Random();
+        int r = random.nextInt(256);
+        int g = random.nextInt(256);
+        int b = random.nextInt(256);
+        return String.format("#%02X%02X%02X", r, g, b);
     }
 }
