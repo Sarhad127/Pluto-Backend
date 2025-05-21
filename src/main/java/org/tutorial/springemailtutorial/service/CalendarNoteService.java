@@ -9,6 +9,7 @@ import org.tutorial.springemailtutorial.repository.CalendarNoteRepository;
 import org.tutorial.springemailtutorial.repository.UserRepository;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +33,10 @@ public class CalendarNoteService {
         String content = noteDTO.getContent();
         String color = noteDTO.getColor();
         String textColor = noteDTO.getTextColor();
+        String title = noteDTO.getTitle();
+        LocalTime timeFrom = noteDTO.getTimeFrom();
+        LocalTime timeTo = noteDTO.getTimeTo();
+
         Optional<CalendarNote> existingNote = calendarNoteRepository.findByUserAndDate(user, date);
         if (existingNote.isPresent()) {
             CalendarNote note = existingNote.get();
@@ -42,6 +47,9 @@ public class CalendarNoteService {
             note.setContent(content);
             note.setColor(color);
             note.setTextColor(textColor);
+            note.setTitle(title);
+            note.setTimeFrom(timeFrom);
+            note.setTimeTo(timeTo);
             return calendarNoteRepository.save(note);
         } else {
             if (content != null && !content.trim().isEmpty()) {

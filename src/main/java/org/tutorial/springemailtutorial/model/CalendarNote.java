@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Data
@@ -26,6 +27,12 @@ public class CalendarNote {
 
     @Column(columnDefinition = "TEXT")
     private String content;
+
+    private String title;
+
+    private LocalTime timeFrom;
+
+    private LocalTime timeTo;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
