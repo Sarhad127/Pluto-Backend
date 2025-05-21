@@ -98,6 +98,7 @@ public class TaskService {
         task.setAvatarImageUrl(taskDto.getAvatarImageUrl());
         task.setAvatarInitials(taskDto.getAvatarInitials());
         task.setAvatarUsername(taskDto.getAvatarUsername());
+        task.setDueDate(taskDto.getDueDate());
 
         if (taskDto.getText() != null && !taskDto.getText().trim().isEmpty()) {
             task.setText(taskDto.getText());
@@ -166,7 +167,8 @@ public class TaskService {
                         task.getAvatarInitials(),
                         task.getAvatarImageUrl(),
                         task.getAvatarBackgroundColor(),
-                        task.getAvatarUsername()
+                        task.getAvatarUsername(),
+                        task.getDueDate()
                 ))
                 .collect(Collectors.toList());
     }
@@ -203,7 +205,8 @@ public class TaskService {
                         task.getAvatarBackgroundColor(),
                         task.getAvatarImageUrl(),
                         task.getAvatarInitials(),
-                        task.getAvatarUsername()
+                        task.getAvatarUsername(),
+                        task.getDueDate()
                 ))
                 .collect(Collectors.toList());
     }

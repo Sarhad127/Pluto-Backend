@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -30,6 +32,9 @@ public class MyTask {
     private String avatarImageUrl;
     private String avatarInitials;
     private String avatarUsername;
+
+    @Column(name = "due_date")
+    private LocalDateTime dueDate;
 
     @ManyToOne
     @JoinColumn(name = "column_id")
