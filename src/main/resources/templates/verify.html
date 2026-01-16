@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Verification</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            height: 100vh;
+            padding-top: 60px;
+            margin: 0;
+        }
+        .form-container {
+            background-color: white;
+            padding: 40px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        .form-container h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+        input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 12px;
+            margin: 10px 0 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: block;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #1e88e5;
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <h2>Email Verification</h2>
+    <form th:action="@{/auth/verify}" method="post">
+        <label>
+            <input type="text" name="verificationCode" placeholder="Enter Verification Code" required />
+        </label>
+        <input type="hidden" name="email" th:value="${email}" />
+        <button type="submit">Verify</button>
+    </form>
+</div>
+</body>
+</html>
